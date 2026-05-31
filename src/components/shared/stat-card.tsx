@@ -2,7 +2,6 @@
 
 import { LucideIcon } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface StatCardProps {
   title: string;
@@ -15,10 +14,22 @@ interface StatCardProps {
 }
 
 const variantStyles = {
-  default: "bg-primary/10 text-primary",
-  primary: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  success: "bg-green-500/10 text-green-600 dark:text-green-400",
-  warning: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+  default: {
+    icon: "bg-blue-500/15 text-blue-400 ring-blue-500/20",
+    glow: "from-blue-500/10 to-transparent",
+  },
+  primary: {
+    icon: "bg-blue-500/15 text-blue-400 ring-blue-500/20",
+    glow: "from-blue-500/10 to-transparent",
+  },
+  success: {
+    icon: "bg-emerald-500/15 text-emerald-400 ring-emerald-500/20",
+    glow: "from-emerald-500/10 to-transparent",
+  },
+  warning: {
+    icon: "bg-amber-500/15 text-amber-400 ring-amber-500/20",
+    glow: "from-amber-500/10 to-transparent",
+  },
 };
 
 export function StatCard({
@@ -32,34 +43,38 @@ export function StatCard({
 }: StatCardProps) {
   const displayValue =
     typeof value === "number" && isCurrency ? formatCurrency(value) : value;
+  const styles = variantStyles[variant];
 
   return (
-    <Card className="glass-card overflow-hidden transition-all hover:shadow-md">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold tracking-tight">{displayValue}</p>
-            {description && (
-              <p className="text-xs text-muted-foreground">{description}</p>
-            )}
-            {trend && (
-              <p
-                className={cn(
-                  "text-xs font-medium",
-                  trend.value >= 0 ? "text-green-600" : "text-red-600"
-                )}
-              >
-                {trend.value >= 0 ? "+" : ""}
-                {trend.value}% {trend.label}
-              </p>
-            )}
-          </div>
-          <div className={cn("rounded-xl p-3", variantStyles[variant])}>
-            <Icon className="h-5 w-5" />
-          </div>
+    <div className="dashboard-card group relative overflow-hidden p-6">
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+          styles.glow
+        )}
+      />
+      <div className="relative flex items-start justify-between">
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-zinc-500">{title}</p>
+          <p className="text-3xl font-bold tracking-tight text-white">{displayValue}</p>
+          {description && (
+            <p className="text-xs text-zinc-500">{description}</p>
+          )}
+          {trend && (
+            <p
+              className={cn(
+                "text-xs font-medium",
+                trend.value >= 0 ? "text-emerald-400" : "text-red-400"
+              )}
+            >
+              {trend.value >= 0 ? "↑" : "↓"} {Math.abs(trend.value)}% {trend.label}
+            </p>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        <div className={cn("rounded-xl p-3 ring-1", styles.icon)}>
+          <Icon className="h-5 w-5" />
+        </div>
+      </div>
+    </div>
   );
 }

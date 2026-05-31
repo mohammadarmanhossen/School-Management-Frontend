@@ -48,7 +48,7 @@ export default function ParentDashboardPage() {
       />
 
       {/* Child profile card */}
-      <Card className="glass-card overflow-hidden">
+      <Card className="dashboard-card overflow-hidden">
         <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 border-2 border-primary/20">
@@ -87,7 +87,7 @@ export default function ParentDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {QUICK_LINKS.map((link) => (
           <Link key={link.href} href={link.href}>
-            <Card className="h-full transition-all hover:border-primary/50 hover:shadow-md">
+            <Card className="h-full border-white/[0.08] bg-[hsl(0,0%,6%)] transition-all hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5">
               <CardContent className="flex items-center gap-4 pt-6">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
                   <link.icon className="h-5 w-5 text-primary" />

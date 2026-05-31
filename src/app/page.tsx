@@ -1,15 +1,12 @@
-import {
-  LandingHeader,
-} from "@/components/landing/landing-header";
+import { LandingHeader } from "@/components/landing/landing-header";
 import {
   HeroSection,
   FeaturesSection,
   ModulesSection,
   PricingSection,
-  CtaSection,
-  LandingFooter,
 } from "@/components/landing/landing-sections";
 import { ContactSection } from "@/components/landing/contact-section";
+import { CtaSection, LandingFooter } from "@/components/landing/landing-footer";
 
 export default function HomePage() {
   return (

@@ -85,16 +85,16 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-card">
+    <div className="dashboard-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full caption-bottom text-sm">
-          <thead className="border-b bg-muted/50">
+          <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
+              <tr key={headerGroup.id} className="border-b border-white/[0.06] bg-white/[0.02]">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"
+                    className="h-11 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wide text-zinc-500"
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -128,11 +128,11 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.03] data-[state=selected]:bg-blue-500/5"
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="p-4 align-middle">
+                    <td key={cell.id} className="px-4 py-3.5 align-middle text-zinc-300">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}
@@ -140,7 +140,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <tr>
-                <td colSpan={tableColumns.length} className="h-24 text-center text-muted-foreground">
+                <td colSpan={tableColumns.length} className="h-24 text-center text-zinc-600">
                   No results found.
                 </td>
               </tr>
