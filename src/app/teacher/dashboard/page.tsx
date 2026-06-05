@@ -11,7 +11,13 @@ import {
   PenLine,
   FileText,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  User,
+  BookOpen,
+  Folder,
+  MessageSquare,
+  BarChart,
+  Settings
 } from "lucide-react";
 
 import { StatCard } from "@/components/shared/stat-card";
@@ -30,12 +36,19 @@ import { getInitials } from "@/lib/utils";
 import { useAuthStore } from "@/store";
 
 const QUICK_LINKS = [
-  { title: "Attendance", href: "/dashboard/attendance", icon: ClipboardCheck, desc: "Mark daily attendance" },
-  { title: "Assignments", href: "/dashboard/assignments", icon: PenLine, desc: "Create & grade tasks" },
-  { title: "Results", href: "/dashboard/results", icon: Award, desc: "Manage student grades" },
-  { title: "Timetable", href: "/dashboard/timetable", icon: Calendar, desc: "View class schedule" },
-  { title: "Notices", href: "/dashboard/notices", icon: Bell, desc: "School announcements" },
-  { title: "Performance", href: "/teacher/dashboard/performance", icon: TrendingUp, desc: "Teaching analytics" },
+  { title: "Profile", href: "/teacher/dashboard/profile", icon: User, desc: "Manage your profile" },
+  { title: "My Classes", href: "/teacher/dashboard/classes", icon: BookOpen, desc: "View your classes" },
+  { title: "Routine", href: "/teacher/dashboard/timetable", icon: Calendar, desc: "Your daily schedule" },
+  { title: "Attendance", href: "/teacher/dashboard/attendance", icon: ClipboardCheck, desc: "Mark attendance" },
+  { title: "Homework", href: "/teacher/dashboard/homework", icon: PenLine, desc: "Manage assignments" },
+  { title: "Lesson Plan", href: "/teacher/dashboard/lesson-plan", icon: FileText, desc: "Plan your syllabus" },
+  { title: "Exams & Results", href: "/teacher/dashboard/results", icon: Award, desc: "View results" },
+  { title: "Students", href: "/teacher/dashboard/students", icon: Users, desc: "Student directory" },
+  { title: "Study Materials", href: "/teacher/dashboard/materials", icon: Folder, desc: "Upload resources" },
+  { title: "Messages", href: "/teacher/dashboard/messages", icon: MessageSquare, desc: "Inbox" },
+  { title: "Notices", href: "/teacher/dashboard/notices", icon: Bell, desc: "Announcements" },
+  { title: "Reports", href: "/teacher/dashboard/reports", icon: BarChart, desc: "View analytics" },
+  { title: "Settings", href: "/teacher/dashboard/settings", icon: Settings, desc: "Preferences" },
 ];
 
 export default function TeacherDashboardPage() {
@@ -73,7 +86,7 @@ export default function TeacherDashboardPage() {
             </div>
           </div>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/settings">View Profile</Link>
+            <Link href="/teacher/dashboard/profile">View Profile</Link>
           </Button>
         </CardContent>
       </Card>
@@ -111,7 +124,7 @@ export default function TeacherDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">My Classes</CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard/classes">View all</Link>
+              <Link href="/teacher/dashboard/classes">View all</Link>
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -134,7 +147,7 @@ export default function TeacherDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Today&apos;s Schedule</CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard/timetable">View full</Link>
+              <Link href="/teacher/dashboard/timetable">View full</Link>
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -156,7 +169,7 @@ export default function TeacherDashboardPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Recent Notices</CardTitle>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard/notices">View all</Link>
+            <Link href="/teacher/dashboard/notices">View all</Link>
           </Button>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

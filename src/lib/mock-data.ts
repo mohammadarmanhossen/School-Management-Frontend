@@ -382,6 +382,71 @@ export const mockTeacherAttendanceChart: ChartDataPoint[] = [
   { name: "Jun", present: 10, absent: 0 },
 ];
 
+// ─── Extended Teacher Performance Mock Data ───────────────────────────────────
+
+export const mockTeacherMonthlyScoreTrend: ChartDataPoint[] = [
+  { name: "Jan", classAvg: 71, schoolAvg: 69 },
+  { name: "Feb", classAvg: 74, schoolAvg: 70 },
+  { name: "Mar", classAvg: 72, schoolAvg: 71 },
+  { name: "Apr", classAvg: 76, schoolAvg: 72 },
+  { name: "May", classAvg: 78, schoolAvg: 73 },
+  { name: "Jun", classAvg: 74, schoolAvg: 72 },
+];
+
+export const mockTeacherAssignmentCompletion: ChartDataPoint[] = [
+  { name: "Jan", submitted: 88, total: 100 },
+  { name: "Feb", submitted: 92, total: 100 },
+  { name: "Mar", submitted: 85, total: 100 },
+  { name: "Apr", submitted: 94, total: 100 },
+  { name: "May", submitted: 91, total: 100 },
+  { name: "Jun", submitted: 96, total: 100 },
+];
+
+export const mockTeacherSubjectBreakdown = [
+  { subject: "Algebra", avgScore: 78, passRate: 94, totalStudents: 73 },
+  { subject: "Geometry", avgScore: 71, passRate: 89, totalStudents: 73 },
+  { subject: "Trigonometry", avgScore: 65, passRate: 82, totalStudents: 73 },
+  { subject: "Statistics", avgScore: 80, passRate: 96, totalStudents: 73 },
+  { subject: "Calculus", avgScore: 68, passRate: 85, totalStudents: 76 },
+];
+
+export const mockTeacherTopStudents = [
+  { id: "s1", name: "Rahim Ahmed", class: "Class 10A", score: 95, attendance: 100, trend: "up" as const },
+  { id: "s2", name: "Fatima Begum", class: "Class 9A", score: 92, attendance: 98, trend: "up" as const },
+  { id: "s3", name: "Tanvir Islam", class: "Class 10B", score: 89, attendance: 95, trend: "stable" as const },
+  { id: "s4", name: "Ayesha Rahman", class: "Class 9B", score: 87, attendance: 97, trend: "up" as const },
+  { id: "s5", name: "Karim Hassan", class: "Class 10A", score: 85, attendance: 93, trend: "down" as const },
+];
+
+export const mockTeacherGoals = [
+  { id: "g1", label: "Avg Class Score Target", current: 74.3, target: 80, unit: "%" },
+  { id: "g2", label: "Attendance Rate Target", current: 91.8, target: 95, unit: "%" },
+  { id: "g3", label: "Assignment Submission Rate", current: 91, target: 95, unit: "%" },
+  { id: "g4", label: "Classes Conducted (Month)", current: 48, target: 52, unit: " classes" },
+];
+
+export interface TeacherRadarData {
+  subject: string;
+  score: number;
+  fullMark: number;
+}
+
+export const mockTeacherSkillRadar: TeacherRadarData[] = [
+  { subject: "Student Engagement", score: 82, fullMark: 100 },
+  { subject: "Curriculum Coverage", score: 90, fullMark: 100 },
+  { subject: "Assessment Quality", score: 75, fullMark: 100 },
+  { subject: "Feedback Speed", score: 68, fullMark: 100 },
+  { subject: "Attendance Rate", score: 94, fullMark: 100 },
+  { subject: "Avg Class Score", score: 74, fullMark: 100 },
+];
+
+export const mockTeacherExamResults = [
+  { exam: "CT-1", classAvg: 72, highest: 95, lowest: 41, passRate: 88 },
+  { exam: "Mid-Term", classAvg: 74, highest: 97, lowest: 38, passRate: 91 },
+  { exam: "CT-2", classAvg: 71, highest: 93, lowest: 39, passRate: 86 },
+  { exam: "Final", classAvg: 76, highest: 98, lowest: 44, passRate: 93 },
+];
+
 // ─── Student Dashboard Mock Data ──────────────────────────────────────────────
 export interface StudentSubjectResult {
   id: string;
@@ -599,4 +664,143 @@ export const mockLibraryFines: LibraryFine[] = [
     createdAt: "2025-06-02",
     paidAt: "2025-06-03",
   },
+];
+
+// ─── Extended Mock Data for Teacher Dashboard ───────────────────────────────
+
+export interface LessonPlan {
+  id: string;
+  classId: string;
+  className: string;
+  subject: string;
+  topic: string;
+  date: string;
+  objectives: string[];
+  status: "pending" | "in_progress" | "completed";
+}
+
+export const mockLessonPlans: LessonPlan[] = [
+  {
+    id: "lp-1",
+    classId: "class-10",
+    className: "Class 10A",
+    subject: "Mathematics",
+    topic: "Quadratic Equations",
+    date: "2025-06-12",
+    objectives: ["Understand standard form", "Solve using formula", "Graphing parabolas"],
+    status: "in_progress"
+  },
+  {
+    id: "lp-2",
+    classId: "class-9",
+    className: "Class 9B",
+    subject: "Mathematics",
+    topic: "Introduction to Trigonometry",
+    date: "2025-06-14",
+    objectives: ["Sine, Cosine, Tangent", "Right-angled triangles", "Basic identities"],
+    status: "pending"
+  },
+  {
+    id: "lp-3",
+    classId: "class-10",
+    className: "Class 10B",
+    subject: "Mathematics",
+    topic: "Linear Equations",
+    date: "2025-06-08",
+    objectives: ["Graphing lines", "Substitution method", "Elimination method"],
+    status: "completed"
+  }
+];
+
+export interface StudyMaterial {
+  id: string;
+  title: string;
+  description: string;
+  type: "pdf" | "video" | "doc";
+  size: string;
+  subject: string;
+  className: string;
+  uploadDate: string;
+  downloads: number;
+}
+
+export const mockStudyMaterials: StudyMaterial[] = [
+  {
+    id: "sm-1",
+    title: "Algebra Formulas Cheat Sheet",
+    description: "Quick reference guide for all essential algebra formulas.",
+    type: "pdf",
+    size: "2.4 MB",
+    subject: "Mathematics",
+    className: "Class 10",
+    uploadDate: "2025-06-01",
+    downloads: 145
+  },
+  {
+    id: "sm-2",
+    title: "Trigonometry Basics Tutorial",
+    description: "Recorded lecture explaining the basics of SOH CAH TOA.",
+    type: "video",
+    size: "156 MB",
+    subject: "Mathematics",
+    className: "Class 9",
+    uploadDate: "2025-06-03",
+    downloads: 89
+  },
+  {
+    id: "sm-3",
+    title: "Practice Worksheet: Geometry",
+    description: "50 practice questions on circles and triangles.",
+    type: "doc",
+    size: "1.1 MB",
+    subject: "Mathematics",
+    className: "Class 10",
+    uploadDate: "2025-06-05",
+    downloads: 42
+  }
+];
+
+export interface Message {
+  id: string;
+  sender: string;
+  role: "student" | "parent" | "teacher" | "admin";
+  avatar?: string;
+  content: string;
+  timestamp: string;
+  unread: boolean;
+}
+
+export const mockMessages: Message[] = [
+  {
+    id: "msg-1",
+    sender: "Rahim Ahmed",
+    role: "student",
+    content: "Sir, I didn't quite understand the third step in today's algebra problem. Could you explain it again tomorrow?",
+    timestamp: "10:30 AM",
+    unread: true
+  },
+  {
+    id: "msg-2",
+    sender: "Mrs. Rahman",
+    role: "parent",
+    content: "Thank you for the update on Ayesha's progress. We will make sure she finishes the assignment this weekend.",
+    timestamp: "Yesterday",
+    unread: true
+  },
+  {
+    id: "msg-3",
+    sender: "Principal's Office",
+    role: "admin",
+    content: "Reminder: The monthly faculty meeting is scheduled for this Friday at 3:00 PM in the main hall.",
+    timestamp: "Jun 02",
+    unread: false
+  },
+  {
+    id: "msg-4",
+    sender: "Tanvir Islam",
+    role: "student",
+    content: "I have submitted the worksheet on the portal. Please let me know if there are any issues.",
+    timestamp: "May 28",
+    unread: false
+  }
 ];
