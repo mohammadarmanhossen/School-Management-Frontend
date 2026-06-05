@@ -13,7 +13,7 @@ const PANEL_CONTENT: Record<
   { image: string; title: string; subtitle: string; points: string[] }
 > = {
   login: {
-    image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80",
     title: "Welcome back to your school hub",
     subtitle: "Access attendance, exams, fees, and reports — all in one secure dashboard.",
     points: [
@@ -23,7 +23,7 @@ const PANEL_CONTENT: Record<
     ],
   },
   register: {
-    image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80", // Slightly different placeholder for variety
     title: "Start managing your school today",
     subtitle: "Create your account and set up students, teachers, classes, and more in minutes.",
     points: [
