@@ -17,6 +17,10 @@ import type {
   Vehicle,
   TimetableEntry,
   Activity,
+  BookIssue,
+  LibraryMember,
+  LibraryFine,
+  LibrarianDashboardStats,
 } from "@/types";
 
 export const mockDashboardStats: DashboardStats = {
@@ -288,4 +292,311 @@ export const mockParentNotifications: Notification[] = [
   { id: "pn-3", title: "Parent-Teacher Meeting", message: "Scheduled for July 5, 2025 at 10:00 AM", type: "info", read: true, createdAt: new Date(Date.now() - 172800000).toISOString() },
   { id: "pn-4", title: "Absence Alert", message: "Rahim Ahmed was marked absent on May 28", type: "error", read: true, createdAt: new Date(Date.now() - 259200000).toISOString(), link: "/parent/dashboard/attendance" },
   { id: "pn-5", title: "Assignment Due", message: "Algebra Problem Set due tomorrow", type: "info", read: false, createdAt: new Date(Date.now() - 3600000).toISOString() },
+];
+
+// ─── Teacher Dashboard Mock Data ──────────────────────────────────────────────
+export interface TeacherClass {
+  id: string;
+  className: string;
+  section: string;
+  subject: string;
+  room: string;
+  studentCount: number;
+  avgAttendance: number;
+  avgScore: number;
+}
+
+export interface TeacherScheduleEntry {
+  id: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  className: string;
+  subject: string;
+  room: string;
+  type: "class" | "exam" | "meeting";
+}
+
+export interface TeacherLeaveRecord {
+  id: string;
+  type: string;
+  fromDate: string;
+  toDate: string;
+  days: number;
+  status: "approved" | "pending" | "rejected";
+  reason: string;
+}
+
+export const mockTeacherClasses: TeacherClass[] = [
+  { id: "tc-1", className: "Class 10", section: "A", subject: "Mathematics", room: "101", studentCount: 38, avgAttendance: 93, avgScore: 76 },
+  { id: "tc-2", className: "Class 10", section: "B", subject: "Mathematics", room: "102", studentCount: 35, avgAttendance: 91, avgScore: 72 },
+  { id: "tc-3", className: "Class 9", section: "A", subject: "Mathematics", room: "103", studentCount: 40, avgAttendance: 95, avgScore: 80 },
+  { id: "tc-4", className: "Class 9", section: "B", subject: "Mathematics", room: "201", studentCount: 36, avgAttendance: 88, avgScore: 69 },
+];
+
+export const mockTeacherSchedule: TeacherScheduleEntry[] = [
+  { id: "ts-1", day: "Sunday", startTime: "08:00", endTime: "08:45", className: "Class 10", subject: "Mathematics", room: "101", type: "class" },
+  { id: "ts-2", day: "Sunday", startTime: "09:30", endTime: "10:15", className: "Class 9", subject: "Mathematics", room: "103", type: "class" },
+  { id: "ts-3", day: "Sunday", startTime: "11:00", endTime: "11:45", className: "Class 10", subject: "Mathematics", room: "102", type: "class" },
+  { id: "ts-4", day: "Monday", startTime: "08:00", endTime: "08:45", className: "Class 9", subject: "Mathematics", room: "201", type: "class" },
+  { id: "ts-5", day: "Monday", startTime: "10:00", endTime: "11:00", className: "Class 10", subject: "Mid-Term Exam", room: "Exam Hall", type: "exam" },
+  { id: "ts-6", day: "Tuesday", startTime: "08:00", endTime: "08:45", className: "Class 10", subject: "Mathematics", room: "101", type: "class" },
+  { id: "ts-7", day: "Tuesday", startTime: "09:30", endTime: "10:15", className: "Class 9", subject: "Mathematics", room: "103", type: "class" },
+  { id: "ts-8", day: "Wednesday", startTime: "08:00", endTime: "09:00", className: "Staff Meeting", subject: "Weekly Meeting", room: "Conference", type: "meeting" },
+  { id: "ts-9", day: "Wednesday", startTime: "10:00", endTime: "10:45", className: "Class 10", subject: "Mathematics", room: "102", type: "class" },
+  { id: "ts-10", day: "Thursday", startTime: "09:00", endTime: "09:45", className: "Class 9", subject: "Mathematics", room: "201", type: "class" },
+];
+
+export const mockTeacherLeave: TeacherLeaveRecord[] = [
+  { id: "tl-1", type: "Casual Leave", fromDate: "2025-06-10", toDate: "2025-06-10", days: 1, status: "approved", reason: "Personal work" },
+  { id: "tl-2", type: "Medical Leave", fromDate: "2025-05-15", toDate: "2025-05-17", days: 3, status: "approved", reason: "Medical appointment" },
+  { id: "tl-3", type: "Casual Leave", fromDate: "2025-07-01", toDate: "2025-07-02", days: 2, status: "pending", reason: "Family function" },
+];
+
+export const mockTeacherStats = {
+  totalClasses: 4,
+  totalStudents: 149,
+  pendingAssignments: 3,
+  upcomingExams: 2,
+  attendanceMarkedToday: true,
+  leaveDaysUsed: 4,
+  leaveDaysTotal: 20,
+  avgClassScore: 74.3,
+  thisMonthClasses: 48,
+  totalNotices: 2,
+};
+
+export const mockTeacherPerformanceChart: ChartDataPoint[] = [
+  { name: "Class 10A", score: 76, attendance: 93 },
+  { name: "Class 10B", score: 72, attendance: 91 },
+  { name: "Class 9A", score: 80, attendance: 95 },
+  { name: "Class 9B", score: 69, attendance: 88 },
+];
+
+export const mockTeacherAttendanceChart: ChartDataPoint[] = [
+  { name: "Jan", present: 22, absent: 0 },
+  { name: "Feb", present: 19, absent: 1 },
+  { name: "Mar", present: 21, absent: 1 },
+  { name: "Apr", present: 20, absent: 2 },
+  { name: "May", present: 18, absent: 3 },
+  { name: "Jun", present: 10, absent: 0 },
+];
+
+// ─── Student Dashboard Mock Data ──────────────────────────────────────────────
+export interface StudentSubjectResult {
+  id: string;
+  subject: string;
+  classTest: number;
+  midTerm: number;
+  finalExam: number;
+  total: number;
+  grade: string;
+  gpa: number;
+  teacher: string;
+}
+
+export interface StudentTodayClass {
+  id: string;
+  time: string;
+  subject: string;
+  teacher: string;
+  room: string;
+  status: "upcoming" | "ongoing" | "done";
+}
+
+export interface StudentHomework {
+  id: string;
+  subject: string;
+  title: string;
+  teacher: string;
+  dueDate: string;
+  submitted: boolean;
+  marks?: number;
+}
+
+export const mockStudentProfile = {
+  id: "STU-2025-0001",
+  name: "Rahim Ahmed",
+  rollNumber: "01",
+  class: "Class 10",
+  section: "A",
+  group: "Science",
+  shift: "Morning",
+  admissionDate: "2023-01-15",
+  bloodGroup: "A+",
+  phone: "01712345678",
+  email: "rahim@student.school.edu.bd",
+  attendanceRate: 94.2,
+  gpa: 4.5,
+  rank: 3,
+  totalStudents: 38,
+};
+
+export const mockStudentSubjectResults: StudentSubjectResult[] = [
+  { id: "sr-1", subject: "Mathematics", classTest: 18, midTerm: 42, finalExam: 88, total: 88, grade: "A+", gpa: 5.0, teacher: "Mohammad Karim" },
+  { id: "sr-2", subject: "English", classTest: 15, midTerm: 38, finalExam: 79, total: 79, grade: "A", gpa: 4.0, teacher: "Sharmin Akter" },
+  { id: "sr-3", subject: "Physics", classTest: 17, midTerm: 40, finalExam: 83, total: 83, grade: "A+", gpa: 5.0, teacher: "Abdul Jabbar" },
+  { id: "sr-4", subject: "Chemistry", classTest: 14, midTerm: 36, finalExam: 75, total: 75, grade: "A", gpa: 4.0, teacher: "Nusrat Jahan" },
+  { id: "sr-5", subject: "Biology", classTest: 16, midTerm: 39, finalExam: 81, total: 81, grade: "A+", gpa: 5.0, teacher: "Imran Hossain" },
+  { id: "sr-6", subject: "ICT", classTest: 19, midTerm: 44, finalExam: 91, total: 91, grade: "A+", gpa: 5.0, teacher: "Farhan Uddin" },
+];
+
+export const mockStudentTodayClasses: StudentTodayClass[] = [
+  { id: "stc-1", time: "08:00 – 08:45", subject: "Mathematics", teacher: "Mohammad Karim", room: "101", status: "done" },
+  { id: "stc-2", time: "08:45 – 09:30", subject: "English", teacher: "Sharmin Akter", room: "101", status: "done" },
+  { id: "stc-3", time: "09:45 – 10:30", subject: "Physics", teacher: "Abdul Jabbar", room: "Lab 1", status: "ongoing" },
+  { id: "stc-4", time: "10:30 – 11:15", subject: "Chemistry", teacher: "Nusrat Jahan", room: "Lab 2", status: "upcoming" },
+  { id: "stc-5", time: "11:30 – 12:15", subject: "Biology", teacher: "Imran Hossain", room: "102", status: "upcoming" },
+];
+
+export const mockStudentHomework: StudentHomework[] = [
+  { id: "sh-1", subject: "Mathematics", title: "Algebra Problem Set (Ch. 5)", teacher: "Mohammad Karim", dueDate: "2025-06-15", submitted: false },
+  { id: "sh-2", subject: "English", title: "Essay: Climate Change (500 words)", teacher: "Sharmin Akter", dueDate: "2025-06-20", submitted: true, marks: 14 },
+  { id: "sh-3", subject: "Physics", title: "Lab Report: Optics Experiment", teacher: "Abdul Jabbar", dueDate: "2025-06-18", submitted: false },
+  { id: "sh-4", subject: "Chemistry", title: "Periodic Table Quiz Prep", teacher: "Nusrat Jahan", dueDate: "2025-06-12", submitted: true, marks: 18 },
+];
+
+export const mockStudentAttendanceChart: ChartDataPoint[] = [
+  { name: "Jan", present: 22, absent: 0, late: 0 },
+  { name: "Feb", present: 18, absent: 1, late: 1 },
+  { name: "Mar", present: 20, absent: 1, late: 1 },
+  { name: "Apr", present: 21, absent: 0, late: 1 },
+  { name: "May", present: 19, absent: 2, late: 0 },
+  { name: "Jun", present: 10, absent: 0, late: 0 },
+];
+
+export const mockStudentGpaChart: ChartDataPoint[] = [
+  { name: "CT-1", gpa: 4.2 },
+  { name: "CT-2", gpa: 4.5 },
+  { name: "Mid Term", gpa: 4.3 },
+  { name: "CT-3", gpa: 4.7 },
+  { name: "CT-4", gpa: 4.5 },
+  { name: "Final", gpa: 4.75 },
+];
+
+export const mockStudentUpcomingExams = [
+  { id: "sue-1", name: "Final Examination", subject: "Mathematics", date: "2025-07-01", time: "09:00 AM", room: "Exam Hall A", totalMarks: 100 },
+  { id: "sue-2", name: "Final Examination", subject: "Physics", date: "2025-07-03", time: "09:00 AM", room: "Exam Hall B", totalMarks: 100 },
+  { id: "sue-3", name: "Final Examination", subject: "English", date: "2025-07-05", time: "09:00 AM", room: "Exam Hall A", totalMarks: 100 },
+];
+
+export const mockStudentNotices = [
+  { id: "sn-1", title: "Annual Sports Day 2025", date: "2025-06-01", priority: "high" as const, author: "Principal" },
+  { id: "sn-2", title: "Final Exam Schedule Released", date: "2025-05-28", priority: "urgent" as const, author: "Exam Controller" },
+  { id: "sn-3", title: "Library Book Return Reminder", date: "2025-06-05", priority: "medium" as const, author: "Librarian" },
+];
+
+// ─── Library Module Mock Data ─────────────────────────────────────────────────
+
+export const mockLibrarianStats: LibrarianDashboardStats = {
+  totalBooks: 1240,
+  availableBooks: 892,
+  issuedBooks: 348,
+  overdueBooks: 23,
+  activeMembers: 456,
+  pendingFines: 8750,
+};
+
+export const mockBookIssues: BookIssue[] = [
+  {
+    id: "issue-1",
+    bookId: "book-1",
+    bookTitle: "Advanced Mathematics",
+    memberId: "student-1",
+    memberName: "Rahim Ahmed",
+    memberType: "student",
+    issueDate: "2025-05-15",
+    returnDate: "2025-06-15",
+    status: "issued",
+  },
+  {
+    id: "issue-2",
+    bookId: "book-2",
+    bookTitle: "English Grammar",
+    memberId: "student-2",
+    memberName: "Fatima Begum",
+    memberType: "student",
+    issueDate: "2025-04-20",
+    returnDate: "2025-05-20",
+    status: "overdue",
+    fineAmount: 150,
+  },
+  {
+    id: "issue-3",
+    bookId: "book-3",
+    bookTitle: "Physics for HSC",
+    memberId: "teacher-1",
+    memberName: "Mohammad Karim",
+    memberType: "teacher",
+    issueDate: "2025-05-01",
+    returnDate: "2025-06-01",
+    actualReturnDate: "2025-06-02",
+    status: "returned",
+    fineAmount: 50,
+  },
+];
+
+export const mockLibraryMembers: LibraryMember[] = [
+  {
+    id: "student-1",
+    name: "Rahim Ahmed",
+    memberType: "student",
+    cardNumber: "LC-2025-0001",
+    email: "student@school.edu.bd",
+    phone: "01712345678",
+    classOrDept: "Class 10 - A",
+    booksIssued: 2,
+    totalFines: 0,
+    status: "active",
+  },
+  {
+    id: "student-2",
+    name: "Fatima Begum",
+    memberType: "student",
+    cardNumber: "LC-2025-0002",
+    email: "fatima@school.edu.bd",
+    phone: "01812345678",
+    classOrDept: "Class 8 - B",
+    booksIssued: 1,
+    totalFines: 150,
+    status: "active",
+  },
+  {
+    id: "teacher-1",
+    name: "Mohammad Karim",
+    memberType: "teacher",
+    cardNumber: "LC-2025-T001",
+    email: "teacher@school.edu.bd",
+    phone: "01912345678",
+    classOrDept: "Mathematics Dept.",
+    booksIssued: 0,
+    totalFines: 0,
+    status: "active",
+  },
+];
+
+export const mockLibraryFines: LibraryFine[] = [
+  {
+    id: "fine-1",
+    memberId: "student-2",
+    memberName: "Fatima Begum",
+    bookTitle: "English Grammar",
+    issueId: "issue-2",
+    amount: 150,
+    reason: "Late return (5 days)",
+    status: "unpaid",
+    createdAt: "2025-05-25",
+  },
+  {
+    id: "fine-2",
+    memberId: "teacher-1",
+    memberName: "Mohammad Karim",
+    bookTitle: "Physics for HSC",
+    issueId: "issue-3",
+    amount: 50,
+    reason: "Late return (1 day)",
+    status: "paid",
+    createdAt: "2025-06-02",
+    paidAt: "2025-06-03",
+  },
 ];

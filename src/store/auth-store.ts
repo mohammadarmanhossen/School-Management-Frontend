@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User, AuthTokens } from "@/types";
-import { TOKEN_KEY, REFRESH_TOKEN_KEY, REMEMBER_ME_KEY } from "@/constants";
+import { TOKEN_KEY, REFRESH_TOKEN_KEY, REMEMBER_ME_KEY, USER_ROLE_KEY } from "@/constants";
 import Cookies from "js-cookie";
 
 interface AuthState {
@@ -33,6 +33,7 @@ export const useAuthStore = create<AuthState>()(
         Cookies.set(TOKEN_KEY, tokens.access, cookieOptions);
         Cookies.set(REFRESH_TOKEN_KEY, tokens.refresh, cookieOptions);
         Cookies.set(REMEMBER_ME_KEY, String(rememberMe), cookieOptions);
+        Cookies.set(USER_ROLE_KEY, user.role, cookieOptions);
         set({ user, tokens, isAuthenticated: true, isLoading: false, rememberMe });
       },
 
@@ -50,6 +51,7 @@ export const useAuthStore = create<AuthState>()(
         Cookies.remove(TOKEN_KEY);
         Cookies.remove(REFRESH_TOKEN_KEY);
         Cookies.remove(REMEMBER_ME_KEY);
+        Cookies.remove(USER_ROLE_KEY);
         set({ user: null, tokens: null, isAuthenticated: false, isLoading: false, rememberMe: false });
       },
 

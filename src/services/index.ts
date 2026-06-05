@@ -59,6 +59,16 @@ export const authService = {
 
 export const dashboardService = {
   getStats: () => api.get<DashboardStats>("/dashboard/stats/").then((r) => r.data),
+  getAdminDashboard: () =>
+    api.get<import("@/types").AdminDashboardStats>("/dashboard/admin/").then((r) => r.data),
+  getTeacherDashboard: () =>
+    api.get<import("@/types").TeacherDashboardStats>("/dashboard/teacher/").then((r) => r.data),
+  getStudentDashboard: () =>
+    api.get<import("@/types").StudentDashboardStats>("/dashboard/student/").then((r) => r.data),
+  getParentDashboard: () =>
+    api.get<import("@/types").ParentDashboardStats>("/dashboard/parent/").then((r) => r.data),
+  getLibrarianDashboard: () =>
+    api.get<import("@/types").LibrarianDashboardStats>("/dashboard/librarian/").then((r) => r.data),
   getAttendanceChart: () =>
     api.get<ChartDataPoint[]>("/dashboard/charts/attendance/").then((r) => r.data),
   getRevenueChart: () =>
@@ -177,12 +187,32 @@ export const noticeService = {
 };
 
 export const libraryService = {
+  getDashboard: () =>
+    api.get<import("@/types").LibrarianDashboardStats>("/dashboard/librarian/").then((r) => r.data),
   getBooks: (params?: Record<string, unknown>) =>
     api.get<PaginatedResponse<Book>>("/library/books/", { params }).then((r) => r.data),
-  issue: (bookId: string, studentId: string) =>
-    api.post("/library/issue/", { bookId, studentId }).then((r) => r.data),
-  return: (issueId: string) =>
-    api.post(`/library/return/${issueId}/`).then((r) => r.data),
+  getBook: (id: string) => api.get<Book>(`/library/books/${id}/`).then((r) => r.data),
+  createBook: (data: Omit<Book, "id">) =>
+    api.post<Book>("/library/books/", data).then((r) => r.data),
+  updateBook: (id: string, data: Partial<Book>) =>
+    api.patch<Book>(`/library/books/${id}/`, data).then((r) => r.data),
+  deleteBook: (id: string) => api.delete(`/library/books/${id}/`).then((r) => r.data),
+  getIssues: (params?: Record<string, unknown>) =>
+    api.get<PaginatedResponse<import("@/types").BookIssue>>("/library/issue/", { params }).then((r) => r.data),
+  issueBook: (data: {
+    bookId: string;
+    memberId: string;
+    memberType: "student" | "teacher";
+    issueDate: string;
+    returnDate: string;
+  }) => api.post("/library/issue/", data).then((r) => r.data),
+  returnBook: (issueId: string, data?: { actualReturnDate?: string }) =>
+    api.post(`/library/return/${issueId}/`, data).then((r) => r.data),
+  getMembers: (params?: Record<string, unknown>) =>
+    api.get<PaginatedResponse<import("@/types").LibraryMember>>("/library/members/", { params }).then((r) => r.data),
+  getFines: (params?: Record<string, unknown>) =>
+    api.get<PaginatedResponse<import("@/types").LibraryFine>>("/library/fines/", { params }).then((r) => r.data),
+  payFine: (id: string) => api.post(`/library/fines/${id}/pay/`).then((r) => r.data),
 };
 
 export const transportService = {
@@ -209,3 +239,5 @@ export const settingsService = {
   updateProfile: (data: Partial<User>) =>
     api.patch<User>("/settings/profile/", data).then((r) => r.data),
 };
+
+export { menuService, getDemoMenus } from "./menu-service";

@@ -10,6 +10,7 @@ export const ROLES: Record<UserRole, { label: string; labelBn: string }> = {
   teacher: { label: "Teacher", labelBn: "শিক্ষক" },
   student: { label: "Student", labelBn: "শিক্ষার্থী" },
   parent: { label: "Parent", labelBn: "অভিভাবক" },
+  librarian: { label: "Librarian", labelBn: "গ্রন্থাগারিক" },
 };
 
 export const ATTENDANCE_STATUS = {
@@ -122,3 +123,4 @@ export const AUTH_ROUTES = [
 export const TOKEN_KEY = "sms_access_token";
 export const REFRESH_TOKEN_KEY = "sms_refresh_token";
 export const REMEMBER_ME_KEY = "sms_remember_me";
+export const USER_ROLE_KEY = "sms_user_role";

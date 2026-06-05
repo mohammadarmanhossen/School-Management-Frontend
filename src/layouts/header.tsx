@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Bell, LogOut, Menu, Search, User, Settings } from "lucide-react";
-import { useAuthStore, useNotificationStore, useUIStore } from "@/store";
+import { useAuthStore, useNotificationStore, useUIStore, useMenuStore } from "@/store";
 import { authService } from "@/services";
 import { getInitials } from "@/lib/utils";
 import { ROLES } from "@/constants";
@@ -22,6 +22,7 @@ import { toast } from "sonner";
 export function Header() {
   const router = useRouter();
   const { user, logout, getRefreshToken } = useAuthStore();
+  const { clear: clearMenus } = useMenuStore();
   const { unreadCount } = useNotificationStore();
   const { setMobileMenuOpen } = useUIStore();
 
@@ -33,6 +34,7 @@ export function Header() {
       // proceed with local logout
     } finally {
       logout();
+      clearMenus();
       toast.success("Logged out successfully");
       router.push("/login");
     }

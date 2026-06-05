@@ -30,7 +30,7 @@ export default function CreateStudentPage() {
 
   const classId = watch("classId");
 
-  const onSubmit = async (_data: StudentFormData) => {
+  const onSubmit = async () => {
     await new Promise((r) => setTimeout(r, 800));
     toast.success("Student created successfully");
     router.push("/dashboard/students");

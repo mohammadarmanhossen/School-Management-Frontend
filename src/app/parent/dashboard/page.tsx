@@ -32,6 +32,12 @@ const QUICK_LINKS = [
   { title: "Results", href: "/parent/dashboard/results", icon: Award, desc: "Exam grades & GPA" },
   { title: "Fees", href: "/parent/dashboard/fees", icon: Wallet, desc: "Payments & invoices" },
   { title: "Notifications", href: "/parent/dashboard/notifications", icon: Bell, desc: "Alerts & updates" },
+  { title: "homework", href: "/parent/dashboard/homework", icon: ClipboardCheck, desc: "View daily records" },
+  { title: "events", href: "/parent/dashboard/events", icon: Award, desc: "Exam grades & GPA" },
+  { title: "transport", href: "/parent/dashboard/transport", icon: Wallet, desc: "Payments & invoices" },
+  { title: "syllabus", href: "/parent/dashboard/syllabus", icon: Wallet, desc: "Payments & invoices" },
+  { title: "hostel", href: "/parent/dashboard/hostel", icon: Wallet, desc: "Payments & invoices" },
+
 ];
 
 export default function ParentDashboardPage() {

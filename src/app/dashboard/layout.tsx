@@ -1,5 +1,10 @@
 import { DashboardLayout } from "@/layouts";
+import { RouteGuard } from "@/components/auth/route-guard";
 
 export default function DashboardRootLayout({ children }: { children: React.ReactNode }) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return (
+    <RouteGuard>
+      <DashboardLayout>{children}</DashboardLayout>
+    </RouteGuard>
+  );
 }

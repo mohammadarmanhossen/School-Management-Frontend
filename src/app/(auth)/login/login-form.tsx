@@ -73,6 +73,32 @@ const DEMO_USERS: Record<string, { password: string; user: UserType }> = {
       createdAt: new Date().toISOString(),
     },
   },
+  "librarian@school.edu.bd": {
+    password: "library123",
+    user: {
+      id: "5",
+      email: "librarian@school.edu.bd",
+      firstName: "Ayesha",
+      lastName: "Khatun",
+      fullName: "Ayesha Khatun",
+      role: "librarian" as UserRole,
+      isEmailVerified: true,
+      createdAt: new Date().toISOString(),
+    },
+  },
+  "superadmin@school.edu.bd": {
+    password: "super123",
+    user: {
+      id: "6",
+      email: "superadmin@school.edu.bd",
+      firstName: "Super",
+      lastName: "Admin",
+      fullName: "Super Admin",
+      role: "super_admin" as UserRole,
+      isEmailVerified: true,
+      createdAt: new Date().toISOString(),
+    },
+  },
 };
 
 const DEMO_ACCOUNTS = [
@@ -80,6 +106,8 @@ const DEMO_ACCOUNTS = [
   { role: "Teacher", email: "teacher@school.edu.bd", password: "teacher123" },
   { role: "Student", email: "student@school.edu.bd", password: "student123" },
   { role: "Parent", email: "parent@school.edu.bd", password: "parent123" },
+  { role: "Librarian", email: "librarian@school.edu.bd", password: "library123" },
+  { role: "Super Admin", email: "superadmin@school.edu.bd", password: "super123" },
 ];
 
 export default function LoginForm() {
@@ -199,7 +227,7 @@ export default function LoginForm() {
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Quick demo access
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {DEMO_ACCOUNTS.map((account) => (
               <button
                 key={account.email}

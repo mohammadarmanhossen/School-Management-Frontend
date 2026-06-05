@@ -1,36 +1,72 @@
-import type { UserRole } from "@/types";
-import { SIDEBAR_NAV } from "@/constants";
+import type { MenuItem, UserRole } from "@/types";
 
 export function hasRole(userRole: UserRole, allowedRoles: UserRole[]): boolean {
   return allowedRoles.includes(userRole);
 }
 
-export function getNavItems(role: UserRole) {
-  return SIDEBAR_NAV[role] || SIDEBAR_NAV.school_admin;
+export function getDefaultDashboard(role: UserRole): string {
+  switch (role) {
+    case "parent":
+      return "/parent/dashboard";
+    case "teacher":
+      return "/teacher/dashboard";
+    case "student":
+      return "/student/dashboard";
+    case "librarian":
+      return "/library";
+    case "super_admin":
+      return "/dashboard";
+    default:
+      return "/dashboard";
+  }
 }
 
-export function canAccessRoute(role: UserRole, pathname: string): boolean {
-  if (role === "super_admin") return true;
-
-  const navItems = getNavItems(role);
-  const allowedPaths = navItems.map((item) => item.href);
-
-  if (pathname === "/dashboard" || pathname.startsWith("/dashboard/settings")) {
-    return true;
+export function getRoleRoutePrefix(role: UserRole): string {
+  switch (role) {
+    case "parent":
+      return "/parent";
+    case "student":
+      return "/student";
+    case "teacher":
+      return "/teacher";
+    case "librarian":
+      return "/library";
+    default:
+      return "/dashboard";
   }
+}
+
+export function canAccessRoute(
+  role: UserRole,
+  pathname: string,
+  menuItems: MenuItem[]
+): boolean {
+  if (role === "super_admin" || role === "school_admin") return true;
+
+  const allowedPaths = menuItems.map((item) => item.path);
+  const defaultDashboard = getDefaultDashboard(role);
+
+  if (pathname === defaultDashboard) return true;
 
   if (role === "parent") {
     return pathname.startsWith("/parent");
   }
 
+  if (role === "student") {
+    return pathname.startsWith("/student");
+  }
+
+  if (role === "teacher") {
+    return pathname.startsWith("/teacher");
+  }
+
+  if (role === "librarian") {
+    return pathname.startsWith("/library");
+  }
+
   return allowedPaths.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`)
   );
-}
-
-export function getDefaultDashboard(role: UserRole): string {
-  if (role === "parent") return "/parent/dashboard";
-  return "/dashboard";
 }
 
 export function calculateGrade(marks: number, total: number): { grade: string; gpa: number } {

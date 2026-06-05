@@ -3,7 +3,27 @@ export type UserRole =
   | "school_admin"
   | "teacher"
   | "student"
-  | "parent";
+  | "parent"
+  | "librarian";
+
+export type ApiRole =
+  | "SUPER_ADMIN"
+  | "ADMIN"
+  | "TEACHER"
+  | "STUDENT"
+  | "PARENT"
+  | "LIBRARIAN";
+
+export interface MenuItem {
+  label: string;
+  path: string;
+  icon?: string;
+}
+
+export interface MenuResponse {
+  role: ApiRole | UserRole;
+  menus: MenuItem[];
+}
 
 export interface User {
   id: string;
@@ -249,6 +269,86 @@ export interface Book {
   totalCopies: number;
   availableCopies: number;
   barcode?: string;
+}
+
+export interface BookIssue {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  memberId: string;
+  memberName: string;
+  memberType: "student" | "teacher";
+  issueDate: string;
+  returnDate: string;
+  actualReturnDate?: string;
+  status: "issued" | "returned" | "overdue";
+  fineAmount?: number;
+}
+
+export interface LibraryMember {
+  id: string;
+  name: string;
+  memberType: "student" | "teacher";
+  cardNumber: string;
+  email: string;
+  phone: string;
+  classOrDept: string;
+  booksIssued: number;
+  totalFines: number;
+  status: "active" | "suspended";
+}
+
+export interface LibraryFine {
+  id: string;
+  memberId: string;
+  memberName: string;
+  bookTitle: string;
+  issueId: string;
+  amount: number;
+  reason: string;
+  status: "paid" | "unpaid";
+  createdAt: string;
+  paidAt?: string;
+}
+
+export interface LibrarianDashboardStats {
+  totalBooks: number;
+  availableBooks: number;
+  issuedBooks: number;
+  overdueBooks: number;
+  activeMembers: number;
+  pendingFines: number;
+}
+
+export interface AdminDashboardStats {
+  totalStudents: number;
+  totalTeachers: number;
+  totalParents: number;
+  revenue: number;
+  attendance: number;
+  reports: number;
+}
+
+export interface TeacherDashboardStats {
+  totalClasses: number;
+  attendanceRate: number;
+  pendingMarks: number;
+  activeAssignments: number;
+}
+
+export interface StudentDashboardStats {
+  attendanceRate: number;
+  gpa: number;
+  pendingAssignments: number;
+  pendingFees: number;
+  borrowedBooks: number;
+}
+
+export interface ParentDashboardStats {
+  childrenCount: number;
+  attendanceRate: number;
+  pendingFees: number;
+  unreadNotifications: number;
 }
 
 export interface Vehicle {

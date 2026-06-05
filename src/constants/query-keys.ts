@@ -53,7 +53,14 @@ export const queryKeys = {
   },
   library: {
     all: ["library"] as const,
+    dashboard: ["library", "dashboard"] as const,
     books: (params?: Record<string, unknown>) => ["library", "books", params] as const,
+    issues: (params?: Record<string, unknown>) => ["library", "issues", params] as const,
+    members: (params?: Record<string, unknown>) => ["library", "members", params] as const,
+    fines: (params?: Record<string, unknown>) => ["library", "fines", params] as const,
+  },
+  menus: {
+    all: ["menus"] as const,
   },
   transport: {
     all: ["transport"] as const,
