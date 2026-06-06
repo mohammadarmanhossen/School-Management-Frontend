@@ -804,3 +804,4 @@ export const mockMessages: Message[] = [
     unread: false
   }
 ];
+
