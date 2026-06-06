@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,13 @@ export default function ExamsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Exams" description="Create and manage examinations" breadcrumbs={[{ label: "Exams" }]}
-        actions={<Button><Plus className="mr-2 h-4 w-4" /> Create Exam</Button>} />
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/exams/create">
+              <Plus className="mr-2 h-4 w-4" /> Create Exam
+            </Link>
+          </Button>
+        } />
       <DataTable columns={columns} data={mockExams} />
     </div>
   );

@@ -82,8 +82,8 @@ export const teacherSchema = z.object({
 
 export const classSchema = z.object({
   name: z.string().min(1, "Class name is required"),
-  grade: z.coerce.number().min(1).max(12),
-  capacity: z.coerce.number().min(1),
+  grade: z.coerce.number().min(1, "Grade must be between 1 and 12").max(12, "Grade must be between 1 and 12"),
+  capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
   teacherId: z.string().optional(),
   academicYear: z.string().min(4, "Academic year is required"),
 });
@@ -111,17 +111,50 @@ export const examSchema = z.object({
 export const noticeSchema = z.object({
   title: z.string().min(3, "Title is required"),
   content: z.string().min(10, "Content is required"),
-  targetRoles: z.array(z.enum(["super_admin", "school_admin", "teacher", "student", "parent"])),
+  targetRoles: z
+    .array(z.enum(["super_admin", "school_admin", "teacher", "student", "parent"]))
+    .min(1, "Select at least one target audience"),
   publishDate: z.string().min(1, "Publish date is required"),
   expiryDate: z.string().optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
+  status: z.enum(["published", "draft", "scheduled"]).default("published"),
 });
 
 export const feeSchema = z.object({
   studentId: z.string().min(1, "Student is required"),
   category: z.string().min(1, "Category is required"),
-  amount: z.coerce.number().min(1),
+  amount: z.coerce.number().min(1, "Amount must be at least 1"),
   dueDate: z.string().min(1, "Due date is required"),
+  status: z.enum(["paid", "partial", "pending", "overdue"]).default("pending"),
+});
+
+export const vehicleSchema = z.object({
+  registrationNumber: z.string().min(2, "Registration number is required"),
+  model: z.string().min(2, "Model is required"),
+  capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
+  driverName: z.string().min(2, "Driver name is required"),
+  driverPhone: z.string().min(10, "Valid phone number required"),
+  routeName: z.string().min(2, "Route name is required"),
+  status: z.enum(["active", "maintenance", "inactive"]).default("active"),
+});
+
+export const assignmentSchema = z.object({
+  title: z.string().min(3, "Title is required"),
+  description: z.string().min(10, "Description is required"),
+  classId: z.string().min(1, "Class is required"),
+  subjectId: z.string().min(1, "Subject is required"),
+  teacherId: z.string().min(1, "Teacher is required"),
+  dueDate: z.string().min(1, "Due date is required"),
+  status: z.enum(["active", "draft", "closed"]).default("active"),
+});
+
+export const bookSchema = z.object({
+  title: z.string().min(2, "Title is required"),
+  author: z.string().min(2, "Author is required"),
+  isbn: z.string().min(5, "Valid ISBN is required"),
+  category: z.string().min(2, "Category is required"),
+  totalCopies: z.coerce.number().min(1, "Total copies must be at least 1"),
+  barcode: z.string().min(2, "Barcode is required"),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
@@ -136,3 +169,6 @@ export type SubjectFormData = z.infer<typeof subjectSchema>;
 export type ExamFormData = z.infer<typeof examSchema>;
 export type NoticeFormData = z.infer<typeof noticeSchema>;
 export type FeeFormData = z.infer<typeof feeSchema>;
+export type VehicleFormData = z.infer<typeof vehicleSchema>;
+export type AssignmentFormData = z.infer<typeof assignmentSchema>;
+export type BookFormData = z.infer<typeof bookSchema>;

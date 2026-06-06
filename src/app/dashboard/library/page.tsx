@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,13 @@ export default function LibraryPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Library" description="Book catalog, issue, and return management" breadcrumbs={[{ label: "Library" }]}
-        actions={<Button><Plus className="mr-2 h-4 w-4" /> Add Book</Button>} />
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/library/create">
+              <Plus className="mr-2 h-4 w-4" /> Add Book
+            </Link>
+          </Button>
+        } />
       <DataTable columns={columns} data={mockBooks} />
     </div>
   );

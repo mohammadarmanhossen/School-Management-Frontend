@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,13 @@ export default function ClassesPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Classes" description="Manage classes and sections" breadcrumbs={[{ label: "Classes" }]}
-        actions={<Button><Plus className="mr-2 h-4 w-4" /> Create Class</Button>} />
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/classes/create">
+              <Plus className="mr-2 h-4 w-4" /> Create Class
+            </Link>
+          </Button>
+        } />
       <DataTable columns={columns} data={mockClasses} />
     </div>
   );

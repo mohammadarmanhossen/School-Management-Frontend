@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,13 @@ export default function TransportPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Transport" description="Vehicle, route, and driver management" breadcrumbs={[{ label: "Transport" }]}
-        actions={<Button><Plus className="mr-2 h-4 w-4" /> Add Vehicle</Button>} />
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/transport/create">
+              <Plus className="mr-2 h-4 w-4" /> Add Vehicle
+            </Link>
+          </Button>
+        } />
       <DataTable columns={columns} data={mockVehicles} />
     </div>
   );

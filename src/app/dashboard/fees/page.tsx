@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus, FileText } from "lucide-react";
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,11 @@ export default function FeesPage() {
         actions={
           <div className="flex gap-2">
             <Button variant="outline"><FileText className="mr-2 h-4 w-4" /> Generate Invoice</Button>
-            <Button><Plus className="mr-2 h-4 w-4" /> Add Fee</Button>
+            <Button asChild>
+              <Link href="/dashboard/fees/create">
+                <Plus className="mr-2 h-4 w-4" /> Add Fee
+              </Link>
+            </Button>
           </div>
         } />
       <div className="flex flex-wrap gap-2">
