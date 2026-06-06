@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Folder, Upload, FileText, File as FileIcon, Video, Download, Trash2, HardDrive } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";

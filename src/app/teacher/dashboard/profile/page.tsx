@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Mail, Phone, MapPin, Briefcase, Calendar, Shield, Save } from "lucide-react";
+import { Mail, Phone, MapPin, Briefcase, Shield, Save } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { mockTeachers } from "@/lib/mock-data";
 
 export default function ProfilePage() {
   // Using the first teacher as the active profile
-  const [profile, setProfile] = useState(mockTeachers[0]);
+  const [profile] = useState(mockTeachers[0]);
 
   return (
     <div className="space-y-8">

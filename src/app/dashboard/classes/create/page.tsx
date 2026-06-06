@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { classSchema, type ClassFormData } from "@/schemas";
@@ -36,7 +36,7 @@ export default function CreateClassPage() {
     router.push("/dashboard/classes");
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: FieldErrors<ClassFormData>) => {
     console.error("Form validation errors:", errors);
     toast.error("Please fill in all required fields correctly.");
   };

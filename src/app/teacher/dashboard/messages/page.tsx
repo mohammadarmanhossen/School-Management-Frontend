@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Search, Send, Image as ImageIcon, Paperclip, MoreVertical, Phone, Video } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

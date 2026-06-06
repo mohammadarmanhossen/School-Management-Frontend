@@ -11,7 +11,6 @@ import {
   PenLine,
   FileText,
   Calendar,
-  TrendingUp,
   User,
   BookOpen,
   Folder,

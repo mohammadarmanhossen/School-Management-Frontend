@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockStudentNotices, mockStudentProfile } from "@/lib/mock-data";
+import { mockStudentNotices } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
 
 // Generate some mock events based on notices + additions
