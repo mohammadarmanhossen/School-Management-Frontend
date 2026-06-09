@@ -39,7 +39,6 @@ export function getDemoMenus(role: UserRole): MenuItem[] {
       { label: "Homework", path: "/student/dashboard/homework", icon: "BookOpen" },
       { label: "Attendance", path: "/student/dashboard/attendance", icon: "ClipboardCheck" },
       { label: "Exams & Results", path: "/student/dashboard/results", icon: "Award" },
-      { label: "Library", path: "/student/dashboard/library", icon: "Library" },
       { label: "Fees", path: "/student/dashboard/fees", icon: "Wallet" },
       { label: "Transport", path: "/student/dashboard/transport", icon: "Bus" },
       { label: "Hostel", path: "/student/dashboard/hostel", icon: "Building" },
