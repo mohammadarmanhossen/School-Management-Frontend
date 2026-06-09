@@ -310,7 +310,7 @@ export default function StudentLibraryPage() {
                   updateBook(book.id, {
                     totalCopies: book.totalCopies,
                     availableCopies: book.availableCopies - 1,
-                  } as any);
+                  } as Partial<typeof book>);
 
                   setOpenBorrow(false);
                   toast.success(

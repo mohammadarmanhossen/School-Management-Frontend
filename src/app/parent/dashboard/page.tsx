@@ -203,7 +203,7 @@ export default function ParentDashboardOverview() {
         {/* Today's Routine */}
         <Card className="dashboard-card lg:col-span-1 border-white/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-base font-semibold text-white">Today's Classes</CardTitle>
+            <CardTitle className="text-base font-semibold text-white">Today&apos;s Classes</CardTitle>
             <CalendarDays className="h-4 w-4 text-zinc-400" />
           </CardHeader>
           <CardContent>

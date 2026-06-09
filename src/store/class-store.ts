@@ -18,7 +18,7 @@ function resolveTeacherName(teacherId?: string) {
     const rawTeachers = localStorage.getItem("teachers_db");
     if (rawTeachers) {
       const teachers = JSON.parse(rawTeachers);
-      return teachers.find((t: any) => t.id === teacherId)?.fullName;
+      return teachers.find((t: { id: string; fullName: string }) => t.id === teacherId)?.fullName;
     }
   } catch (e) {
     console.error("Failed to parse teachers from local storage");

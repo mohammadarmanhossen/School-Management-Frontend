@@ -34,7 +34,7 @@ export default function LibraryReportsPage() {
     };
   }).sort((a, b) => b.count - a.count).slice(0, 5); // top 5
 
-  const popularColumns: ColumnDef<any>[] = [
+  const popularColumns: ColumnDef<{ title: string; author: string; count: number }>[] = [
     { accessorKey: "title", header: "Book Title", cell: ({ row }) => <span className="font-medium text-white">{row.original.title}</span> },
     { accessorKey: "author", header: "Author" },
     { accessorKey: "count", header: "Times Issued", cell: ({ row }) => <span className="font-bold text-blue-400">{row.original.count}</span> }
@@ -42,7 +42,7 @@ export default function LibraryReportsPage() {
 
   // Overdue List Logic
   const overdueIssues = issues.filter(i => i.status === "overdue");
-  const overdueColumns: ColumnDef<any>[] = [
+  const overdueColumns: ColumnDef<typeof overdueIssues[0]>[] = [
     { 
       accessorKey: "member", 
       header: "Member", 
