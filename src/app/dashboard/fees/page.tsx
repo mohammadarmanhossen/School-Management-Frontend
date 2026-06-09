@@ -1,18 +1,21 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { mockFees } from "@/lib/mock-data";
+import { useFeeStore } from "@/store";
 import { PAYMENT_METHODS } from "@/constants";
 import type { Fee } from "@/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function FeesPage() {
+  const fees = useFeeStore((state) => state.fees);
+  const deleteFee = useFeeStore((state) => state.deleteFee);
+
   const columns: ColumnDef<Fee>[] = [
     { accessorKey: "studentName", header: "Student" },
     { accessorKey: "category", header: "Category" },
@@ -49,6 +52,30 @@ export default function FeesPage() {
         return method ? method.label : "-";
       },
     },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/fees/edit/${row.original.id}`}>
+              <Edit className="h-4 w-4 text-blue-400" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (confirm("Are you sure you want to delete this fee record?")) {
+                deleteFee(row.original.id);
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-red-400" />
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -69,7 +96,7 @@ export default function FeesPage() {
           <Badge key={m.id} className={`${m.color} text-white border-0`}>{m.label}</Badge>
         ))}
       </div>
-      <DataTable columns={columns} data={mockFees} />
+      <DataTable columns={columns} data={fees} />
     </div>
   );
 }

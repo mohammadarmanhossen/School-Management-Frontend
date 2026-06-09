@@ -171,6 +171,8 @@ export const mockResults: ExamResult[] = mockStudents.slice(0, 10).map((s, i) =>
   id: `result-${i + 1}`,
   studentId: s.id,
   studentName: s.fullName,
+  classId: s.classId,
+  className: s.className,
   examId: "exam-1",
   examName: "Mid Term Examination",
   marksObtained: 60 + (i % 35),

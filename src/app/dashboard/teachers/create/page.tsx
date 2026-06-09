@@ -13,18 +13,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GENDERS } from "@/constants";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTeachersStorage } from "@/hooks/use-teachers-storage";
 
 export default function CreateTeacherPage() {
   const router = useRouter();
+  const { addTeacher } = useTeachersStorage();
+  
   const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<TeacherFormData>({
     resolver: zodResolver(teacherSchema),
     defaultValues: { gender: "male" },
   });
 
-  const onSubmit = async () => {
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success("Teacher created successfully");
-    router.push("/dashboard/teachers");
+  const onSubmit = async (data: TeacherFormData) => {
+    try {
+      // Simulate network request
+      await new Promise((r) => setTimeout(r, 800));
+      
+      addTeacher({
+        employeeId: data.employeeId,
+        fullName: data.fullName,
+        gender: data.gender,
+        qualification: data.qualification,
+        specialization: data.specialization,
+        phone: data.phone,
+        email: data.email,
+        salary: data.salary,
+        joiningDate: data.joiningDate,
+        address: data.address,
+        subjects: data.subjectIds || [],
+        status: "active",
+      });
+
+      toast.success("Teacher created successfully");
+      router.push("/dashboard/teachers");
+    } catch (error) {
+      toast.error("Failed to create teacher");
+    }
   };
 
   return (
@@ -45,7 +69,7 @@ export default function CreateTeacherPage() {
             </div>
             <div className="space-y-2"><Label>Qualification</Label><Input {...register("qualification")} /></div>
             <div className="space-y-2"><Label>Specialization</Label><Input {...register("specialization")} /></div>
-            <div className="space-y-2"><Label>Salary</Label><Input type="number" {...register("salary")} /></div>
+            <div className="space-y-2"><Label>Salary</Label><Input type="number" {...register("salary", { valueAsNumber: true })} /></div>
             <div className="space-y-2"><Label>Phone</Label><Input {...register("phone")} /></div>
             <div className="space-y-2"><Label>Email</Label><Input type="email" {...register("email")} /></div>
             <div className="space-y-2"><Label>Joining Date</Label><Input type="date" {...register("joiningDate")} /></div>

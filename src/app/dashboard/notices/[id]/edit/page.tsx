@@ -36,7 +36,6 @@ import type { UserRole } from "@/types";
 import Link from "next/link";
 
 const TARGET_ROLES: { value: UserRole; label: string }[] = [
-  { value: "super_admin", label: "Super Admin" },
   { value: "school_admin", label: "School Admin" },
   { value: "teacher", label: "Teachers" },
   { value: "student", label: "Students" },

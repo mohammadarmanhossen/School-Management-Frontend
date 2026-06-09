@@ -12,9 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useBookStore } from "@/store";
 
 export default function CreateBookPage() {
   const router = useRouter();
+  const addBook = useBookStore((state) => state.addBook);
   
   const {
     register,
@@ -26,7 +28,7 @@ export default function CreateBookPage() {
   });
 
   const onSubmit = async (data: BookFormData) => {
-    console.log("Submitting book data:", data);
+    addBook(data);
     await new Promise((resolve) => setTimeout(resolve, 800));
     toast.success("Book added to catalog successfully!");
     router.push("/dashboard/library");

@@ -32,7 +32,6 @@ import { toast } from "sonner";
 import type { UserRole } from "@/types";
 
 const TARGET_ROLES: { value: UserRole; label: string }[] = [
-  { value: "super_admin", label: "Super Admin" },
   { value: "school_admin", label: "School Admin" },
   { value: "teacher", label: "Teachers" },
   { value: "student", label: "Students" },

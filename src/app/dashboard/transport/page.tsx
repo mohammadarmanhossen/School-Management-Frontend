@@ -1,16 +1,19 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { mockVehicles } from "@/lib/mock-data";
+import { useTransportStore } from "@/store";
 import type { Vehicle } from "@/types";
 
 export default function TransportPage() {
+  const vehicles = useTransportStore((state) => state.vehicles);
+  const deleteVehicle = useTransportStore((state) => state.deleteVehicle);
+
   const columns: ColumnDef<Vehicle>[] = [
     { accessorKey: "registrationNumber", header: "Registration" },
     { accessorKey: "model", header: "Model" },
@@ -22,6 +25,30 @@ export default function TransportPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => <Badge variant={row.original.status === "active" ? "success" : "warning"}>{row.original.status}</Badge>,
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/dashboard/transport/edit/${row.original.id}`}>
+              <Edit className="h-4 w-4 text-blue-400" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (confirm("Are you sure you want to delete this vehicle?")) {
+                deleteVehicle(row.original.id);
+              }
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-red-400" />
+          </Button>
+        </div>
+      ),
     },
   ];
 
@@ -35,7 +62,7 @@ export default function TransportPage() {
             </Link>
           </Button>
         } />
-      <DataTable columns={columns} data={mockVehicles} />
+      <DataTable columns={columns} data={vehicles} />
     </div>
   );
 }

@@ -13,6 +13,8 @@ const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "Modules", href: "#modules" },
   { label: "Pricing", href: "#pricing" },
+  { label: "Admissions", href: "/admission" },
+  { label: "Careers", href: "/teacher-apply" },
   { label: "Contact", href: "#contact" },
 ];
 

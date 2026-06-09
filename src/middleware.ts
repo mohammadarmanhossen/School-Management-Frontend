@@ -8,6 +8,8 @@ const PUBLIC_ROUTES = [
   "/forgot-password",
   "/reset-password",
   "/verify-email",
+  "/admission",
+  "/teacher-apply",
 ];
 
 const AUTH_ONLY_ROUTES = [
@@ -19,7 +21,6 @@ const AUTH_ONLY_ROUTES = [
 ];
 
 const ROLE_DASHBOARDS: Record<UserRole, string> = {
-  super_admin: "/dashboard",
   school_admin: "/dashboard",
   teacher: "/teacher/dashboard",
   student: "/student/dashboard",

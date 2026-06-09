@@ -5,7 +5,7 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const ROLES: Record<UserRole, { label: string; labelBn: string }> = {
-  super_admin: { label: "Super Admin", labelBn: "সুপার অ্যাডমিন" },
+
   school_admin: { label: "School Admin", labelBn: "স্কুল অ্যাডমিন" },
   teacher: { label: "Teacher", labelBn: "শিক্ষক" },
   student: { label: "Student", labelBn: "শিক্ষার্থী" },
@@ -54,15 +54,9 @@ export const GENDERS = [
 ] as const;
 
 export const SIDEBAR_NAV = {
-  super_admin: [
-    { title: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-    { title: "Schools", href: "/dashboard/schools", icon: "Building2" },
-    { title: "Subscriptions", href: "/dashboard/subscriptions", icon: "CreditCard" },
-    { title: "Analytics", href: "/dashboard/analytics", icon: "BarChart3" },
-    { title: "Settings", href: "/dashboard/settings", icon: "Settings" },
-  ],
   school_admin: [
     { title: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
+    { title: "Admissions", href: "/dashboard/admissions", icon: "ClipboardList" },
     { title: "Students", href: "/dashboard/students", icon: "GraduationCap" },
     { title: "Teachers", href: "/dashboard/teachers", icon: "Users" },
     { title: "Classes", href: "/dashboard/classes", icon: "School" },
@@ -82,6 +76,7 @@ export const SIDEBAR_NAV = {
     { title: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
     { title: "Attendance", href: "/dashboard/attendance", icon: "ClipboardCheck" },
     { title: "Assignments", href: "/dashboard/assignments", icon: "PenLine" },
+    { title: "Exams", href: "/dashboard/exams", icon: "FileText" },
     { title: "Results", href: "/dashboard/results", icon: "Award" },
     { title: "Timetable", href: "/dashboard/timetable", icon: "Calendar" },
     { title: "Notices", href: "/dashboard/notices", icon: "Bell" },

@@ -86,7 +86,6 @@ const STATUS_CONFIG = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  super_admin: "Super Admin",
   school_admin: "School Admin",
   teacher: "Teachers",
   student: "Students",

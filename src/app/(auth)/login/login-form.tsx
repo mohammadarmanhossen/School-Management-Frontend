@@ -86,19 +86,6 @@ const DEMO_USERS: Record<string, { password: string; user: UserType }> = {
       createdAt: new Date().toISOString(),
     },
   },
-  "superadmin@school.edu.bd": {
-    password: "super123",
-    user: {
-      id: "6",
-      email: "superadmin@school.edu.bd",
-      firstName: "Super",
-      lastName: "Admin",
-      fullName: "Super Admin",
-      role: "super_admin" as UserRole,
-      isEmailVerified: true,
-      createdAt: new Date().toISOString(),
-    },
-  },
 };
 
 const DEMO_ACCOUNTS = [
@@ -107,7 +94,6 @@ const DEMO_ACCOUNTS = [
   { role: "Student", email: "student@school.edu.bd", password: "student123" },
   { role: "Parent", email: "parent@school.edu.bd", password: "parent123" },
   { role: "Librarian", email: "librarian@school.edu.bd", password: "library123" },
-  { role: "Super Admin", email: "superadmin@school.edu.bd", password: "super123" },
 ];
 
 export default function LoginForm() {

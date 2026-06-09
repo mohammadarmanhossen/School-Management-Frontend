@@ -1,289 +1,290 @@
 "use client";
 
-import {
-  Users, Award, TrendingUp, Target, BookOpen,
-  ClipboardCheck, Star, BarChart2
+import { useState, useEffect } from "react";
+import { useNoticeStore } from "@/store";
+import { toast } from "sonner";
+import { 
+  Trash2, 
+  Edit2, 
+  X, 
+  Megaphone, 
+  Send, 
+  Clock, 
+  MessageSquare,
+  Sparkles
 } from "lucide-react";
-import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import {
-  mockTeacherClasses,
-  mockTeacherStats,
-  mockTeacherPerformanceChart,
-  mockTeacherAttendanceChart,
-} from "@/lib/mock-data";
-import { useAuthStore } from "@/store";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  LineChart,
-  Line,
-  Legend,
-} from "recharts";
 
-export default function TeacherPerformancePage() {
-  const { user } = useAuthStore();
+export default function TeacherNoticePage() {
+  const notices = useNoticeStore((state) => state.notices);
+  const addNotice = useNoticeStore((state) => state.addNotice);
+  const updateNotice = useNoticeStore((state) => state.updateNotice);
+  const deleteNotice = useNoticeStore((state) => state.deleteNotice);
 
-  const stats = mockTeacherStats;
-  const classes = mockTeacherClasses;
+  const [mounted, setMounted] = useState(false);
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const CustomBarTooltip = ({
-    active,
-    payload,
-    label,
-  }: {
-    active?: boolean;
-    payload?: { value: number; name: string; color: string }[];
-    label?: string;
-  }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-zinc-900 border border-white/[0.1] p-3 rounded-lg shadow-xl text-sm">
-          <p className="text-zinc-300 font-medium mb-2">{label}</p>
-          {payload.map((p) => (
-            <p key={p.name} style={{ color: p.color }}>
-              {p.name}: <span className="font-bold">{p.value}</span>
-            </p>
-          ))}
-        </div>
-      );
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleSubmit = () => {
+    if (!title.trim() || !message.trim()) {
+      toast.error("Please fill all fields");
+      return;
     }
-    return null;
+
+    if (editingId) {
+      updateNotice(editingId, {
+        title,
+        content: message,
+      });
+      toast.success("Notice updated!");
+      setEditingId(null);
+    } else {
+      addNotice({
+        title,
+        content: message,
+        priority: "medium",
+        status: "published",
+        targetRoles: ["student"],
+        publishDate: new Date().toISOString().split("T")[0],
+      }, "Teacher");
+      toast.success("Notice published!");
+    }
+
+    setTitle("");
+    setMessage("");
   };
 
-  const getScoreColor = (val: number) => {
-    if (val >= 80) return "[&>div]:bg-emerald-500";
-    if (val >= 70) return "[&>div]:bg-blue-500";
-    if (val >= 60) return "[&>div]:bg-amber-500";
-    return "[&>div]:bg-rose-500";
+  const handleEdit = (id: string, currentTitle: string, currentMessage: string) => {
+    setEditingId(id);
+    setTitle(currentTitle);
+    setMessage(currentMessage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getAttendanceColor = (val: number) => {
-    if (val >= 90) return "[&>div]:bg-emerald-500";
-    if (val >= 80) return "[&>div]:bg-blue-500";
-    return "[&>div]:bg-amber-500";
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this notice?")) {
+      deleteNotice(id);
+      toast.success("Notice deleted");
+      if (editingId === id) {
+        handleCancel();
+      }
+    }
   };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setTitle("");
+    setMessage("");
+  };
+
+  if (!mounted) return null;
+
+  const displayNotices = [...notices].reverse();
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title="Teaching Performance"
-        description={`Insights and analytics for ${user?.fullName || "Teacher"}`}
-        breadcrumbs={[
-          { label: "Teacher Portal", href: "/teacher/dashboard" },
-          { label: "Performance" },
-        ]}
-      />
-
-      {/* KPI Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="relative overflow-hidden border-white/[0.08] bg-zinc-950 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-blue-500/10 blur-2xl transition-all group-hover:bg-blue-500/20" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/20 text-blue-400">
-                <Users className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-zinc-400">Total Students</p>
-                <p className="text-2xl font-bold text-white">{stats.totalStudents}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden border-white/[0.08] bg-zinc-950 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-emerald-500/10 blur-2xl transition-all group-hover:bg-emerald-500/20" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
-                <Award className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-zinc-400">Avg Class Score</p>
-                <p className="text-2xl font-bold text-white">{stats.avgClassScore}%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden border-white/[0.08] bg-zinc-950 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl transition-all group-hover:bg-violet-500/20" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/20 text-violet-400">
-                <ClipboardCheck className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-zinc-400">Classes This Month</p>
-                <p className="text-2xl font-bold text-white">{stats.thisMonthClasses}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="relative overflow-hidden border-white/[0.08] bg-zinc-950 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-amber-500/10 blur-2xl transition-all group-hover:bg-amber-500/20" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
-                <Target className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-zinc-400">Leave Remaining</p>
-                <div className="flex items-baseline gap-1">
-                  <p className="text-2xl font-bold text-white">{stats.leaveDaysTotal - stats.leaveDaysUsed}</p>
-                  <p className="text-xs text-zinc-500">/ {stats.leaveDaysTotal} days</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+      {/* HEADER */}
+      <div className="flex flex-col gap-2 relative">
+        <div className="absolute -top-4 -left-4 w-24 h-24 bg-indigo-500/10 dark:bg-indigo-500/20 blur-2xl rounded-full -z-10" />
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 shadow-sm">
+            <Megaphone className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white bg-clip-text">
+              Class Announcements
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Publish and manage important notices for your students instantly.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Class Score vs Attendance Bar Chart */}
-        <Card className="border-white/[0.08] bg-zinc-950">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <BarChart2 className="h-5 w-5 text-blue-500" /> Class Overview
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Score and attendance comparison across all classes
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px] w-full mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={mockTeacherPerformanceChart}
-                  margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
-                  barCategoryGap="30%"
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
-                  <XAxis dataKey="name" stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} />
-                  <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-                  <Legend
-                    wrapperStyle={{ fontSize: "12px", paddingTop: "16px" }}
-                    formatter={(value) => <span style={{ color: "#9ca3af" }}>{value}</span>}
-                  />
-                  <Bar dataKey="score" name="Avg Score (%)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="attendance" name="Attendance (%)" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+      <div className="grid lg:grid-cols-12 gap-8 items-start">
+        {/* LEFT COLUMN: CREATE / EDIT FORM */}
+        <div className="lg:col-span-4 sticky top-6">
+          <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden transition-all duration-300">
+            {/* Form Header */}
+            <div className={`px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors ${editingId ? 'bg-amber-50/50 dark:bg-amber-500/5' : 'bg-slate-50/50 dark:bg-slate-900/50'}`}>
+              <div className="flex items-center gap-2">
+                {editingId ? (
+                  <Edit2 className="h-4 w-4 text-amber-500" />
+                ) : (
+                  <Sparkles className="h-4 w-4 text-indigo-500" />
+                )}
+                <h2 className="font-semibold text-slate-800 dark:text-slate-200">
+                  {editingId ? "Edit Notice" : "New Notice"}
+                </h2>
+              </div>
+              {editingId && (
+                <Button variant="ghost" size="icon" onClick={handleCancel} className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-full transition-colors">
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* My Attendance Line Chart */}
-        <Card className="border-white/[0.08] bg-zinc-950">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-500" /> My Attendance Trend
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Monthly classes conducted vs. absences
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px] w-full mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={mockTeacherAttendanceChart}
-                  margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
+            {/* Form Body */}
+            <div className="p-5 space-y-4">
+              <div className="space-y-1.5 group">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors">
+                  Notice Title
+                </label>
+                <Input
+                  placeholder="e.g., Upcoming Math Test"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="bg-slate-50/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500/30 transition-all rounded-xl h-11"
+                />
+              </div>
+
+              <div className="space-y-1.5 group">
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors">
+                  Message Content
+                </label>
+                <Textarea
+                  placeholder="Write the detailed announcement here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="min-h-[140px] resize-y bg-slate-50/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500/30 transition-all rounded-xl leading-relaxed"
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button 
+                  onClick={handleSubmit} 
+                  className={`w-full h-11 rounded-xl font-medium shadow-md transition-all ${
+                    editingId 
+                      ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20 text-white" 
+                      : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20 text-white"
+                  }`}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
-                  <XAxis dataKey="name" stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip content={<CustomBarTooltip />} cursor={{ stroke: "#ffffff20", strokeWidth: 1 }} />
-                  <Legend
-                    wrapperStyle={{ fontSize: "12px", paddingTop: "16px" }}
-                    formatter={(value) => <span style={{ color: "#9ca3af" }}>{value}</span>}
-                  />
-                  <Line type="monotone" dataKey="present" name="Days Present" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4, fill: "#10b981" }} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="absent" name="Days Absent" stroke="#f43f5e" strokeWidth={2.5} dot={{ r: 4, fill: "#f43f5e" }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
+                  {editingId ? (
+                    <>
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Publish Notice
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
 
-      {/* Per-Class Breakdown */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-white/[0.08] bg-zinc-950 shadow-xl overflow-hidden">
-          <CardHeader className="border-b border-white/[0.06] bg-zinc-900/50 px-6 py-5">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-blue-400" /> Class Score Breakdown
-            </CardTitle>
-            <CardDescription className="text-zinc-400">Average exam score per class</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            {classes.map((cls) => (
-              <div key={cls.id}>
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <span className="font-medium text-zinc-200">{cls.className} - {cls.section}</span>
-                    <span className="ml-2 text-xs text-zinc-500">({cls.subject})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">{cls.avgScore}%</span>
-                    <Badge
-                      variant="outline"
-                      className={`text-xs border-0 ${cls.avgScore >= 75 ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}
-                    >
-                      {cls.avgScore >= 75 ? "Good" : "Needs Focus"}
-                    </Badge>
+        {/* RIGHT COLUMN: NOTICE LIST */}
+        <div className="lg:col-span-8 space-y-4">
+          <div className="flex items-center justify-between pb-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-slate-400" />
+              Published Notices
+            </h3>
+            <Badge variant="secondary" className="rounded-full px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
+              {displayNotices.length} Total
+            </Badge>
+          </div>
+          
+          {displayNotices.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center">
+              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 ring-8 ring-slate-50 dark:ring-slate-900/50">
+                <Megaphone className="h-6 w-6 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">No notices yet</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
+                Create your first announcement using the form to notify your students.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {displayNotices.map((n) => (
+                <div 
+                  key={n.id} 
+                  className={`group relative p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/30 dark:hover:shadow-none hover:-translate-y-0.5 ${
+                    editingId === n.id 
+                      ? 'border-amber-400 dark:border-amber-500/50 ring-4 ring-amber-500/10 shadow-md' 
+                      : 'border-slate-200 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-500/30'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                    {/* Left Icon Area (Hidden on very small screens) */}
+                    <div className="hidden sm:flex shrink-0">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-colors ${
+                        editingId === n.id 
+                          ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' 
+                          : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20'
+                      }`}>
+                        <Megaphone className="h-5 w-5" />
+                      </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="flex-1 min-w-0 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight mb-1 truncate pr-4">
+                            {n.title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                              <Clock className="h-3 w-3" />
+                              {new Date(n.publishDate).toLocaleDateString(undefined, {
+                                month: 'short', day: 'numeric', year: 'numeric'
+                              })}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              By <span className="text-slate-700 dark:text-slate-300">{n.author}</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 shrink-0">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleEdit(n.id, n.title, n.content)}
+                            className="h-8 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 dark:bg-slate-800 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-400 transition-colors"
+                          >
+                            <Edit2 className="h-3.5 w-3.5 sm:mr-1.5" />
+                            <span className="hidden sm:inline">Edit</span>
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDelete(n.id)}
+                            className="h-8 w-8 sm:w-auto sm:px-3 p-0"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 sm:mr-1.5" />
+                            <span className="hidden sm:inline">Delete</span>
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="relative">
+                        <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                          {n.content}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <Progress value={cls.avgScore} className={`h-2 bg-zinc-800 ${getScoreColor(cls.avgScore)}`} />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/[0.08] bg-zinc-950 shadow-xl overflow-hidden">
-          <CardHeader className="border-b border-white/[0.06] bg-zinc-900/50 px-6 py-5">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Star className="h-4 w-4 text-amber-400" /> Attendance Rate per Class
-            </CardTitle>
-            <CardDescription className="text-zinc-400">Student punctuality across your classes</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-5">
-            {classes.map((cls) => (
-              <div key={cls.id}>
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <span className="font-medium text-zinc-200">{cls.className} - {cls.section}</span>
-                    <span className="ml-2 text-xs text-zinc-500">{cls.studentCount} students</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">{cls.avgAttendance}%</span>
-                    <Badge
-                      variant="outline"
-                      className={`text-xs border-0 ${cls.avgAttendance >= 90 ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}
-                    >
-                      {cls.avgAttendance >= 90 ? "Excellent" : "Moderate"}
-                    </Badge>
-                  </div>
-                </div>
-                <Progress value={cls.avgAttendance} className={`h-2 bg-zinc-800 ${getAttendanceColor(cls.avgAttendance)}`} />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
-

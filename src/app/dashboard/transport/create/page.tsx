@@ -12,9 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useTransportStore } from "@/store";
 
 export default function CreateTransportPage() {
   const router = useRouter();
+  const addVehicle = useTransportStore((state) => state.addVehicle);
   const {
     register,
     handleSubmit,
@@ -26,7 +28,7 @@ export default function CreateTransportPage() {
   });
 
   const onSubmit = async (data: VehicleFormData) => {
-    console.log("Submitting data:", data);
+    addVehicle(data);
     await new Promise((r) => setTimeout(r, 800));
     toast.success("Vehicle created successfully");
     router.push("/dashboard/transport");

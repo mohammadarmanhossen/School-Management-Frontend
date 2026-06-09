@@ -112,7 +112,7 @@ export const noticeSchema = z.object({
   title: z.string().min(3, "Title is required"),
   content: z.string().min(10, "Content is required"),
   targetRoles: z
-    .array(z.enum(["super_admin", "school_admin", "teacher", "student", "parent"]))
+    .array(z.enum(["school_admin", "teacher", "student", "parent", "librarian"]))
     .min(1, "Select at least one target audience"),
   publishDate: z.string().min(1, "Publish date is required"),
   expiryDate: z.string().optional(),
@@ -145,7 +145,7 @@ export const assignmentSchema = z.object({
   subjectId: z.string().min(1, "Subject is required"),
   teacherId: z.string().min(1, "Teacher is required"),
   dueDate: z.string().min(1, "Due date is required"),
-  status: z.enum(["active", "draft", "closed"]).default("active"),
+  status: z.enum(["published", "draft", "closed"]).default("published"),
 });
 
 export const bookSchema = z.object({
@@ -172,3 +172,28 @@ export type FeeFormData = z.infer<typeof feeSchema>;
 export type VehicleFormData = z.infer<typeof vehicleSchema>;
 export type AssignmentFormData = z.infer<typeof assignmentSchema>;
 export type BookFormData = z.infer<typeof bookSchema>;
+
+export const studentAdmissionApplySchema = z.object({
+  full_name: z.string().min(2, "Full name is required"),
+  dob: z.string().min(1, "Date of birth is required"),
+  gender: z.enum(["male", "female", "other"], { message: "Please select gender" }),
+  class_name: z.string().min(1, "Class is required"),
+  phone: z.string().min(10, "Valid phone number required"),
+  address: z.string().min(5, "Address is required"),
+});
+
+export const teacherApplySchema = z.object({
+  full_name: z.string().min(2, "Full name is required"),
+  phone: z.string().min(10, "Valid phone number required"),
+  email: z.string().email("Invalid email address"),
+  address: z.string().min(5, "Address is required"),
+  qualification: z.string().min(2, "Qualification is required"),
+  experience: z.string().min(1, "Experience is required"),
+  subject: z.string().min(2, "Subject specialization is required"),
+});
+
+export type StudentAdmissionApplyFormData = z.infer<typeof studentAdmissionApplySchema>;
+export type TeacherApplyFormData = z.infer<typeof teacherApplySchema>;
+
+
+

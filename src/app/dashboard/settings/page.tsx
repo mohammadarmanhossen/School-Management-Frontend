@@ -228,7 +228,7 @@ function SettingsContent() {
   const { user } = useAuthStore();
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("tab") || "profile";
-  const isAdmin = user?.role === "school_admin" || user?.role === "super_admin";
+  const isAdmin = user?.role === "school_admin";
 
   return (
     <div className="space-y-6">

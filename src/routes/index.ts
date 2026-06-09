@@ -1,7 +1,6 @@
 import type { UserRole } from "@/types";
 
 export const ROLE_ROUTE_PREFIX: Record<UserRole, string> = {
-  super_admin: "/dashboard",
   school_admin: "/dashboard",
   teacher: "/dashboard",
   student: "/dashboard",
@@ -10,7 +9,6 @@ export const ROLE_ROUTE_PREFIX: Record<UserRole, string> = {
 };
 
 export const ROLE_ALLOWED_PREFIXES: Record<UserRole, string[]> = {
-  super_admin: ["/dashboard"],
   school_admin: ["/dashboard"],
   teacher: ["/dashboard"],
   student: ["/dashboard"],

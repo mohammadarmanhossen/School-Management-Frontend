@@ -35,6 +35,8 @@ import type {
   ExamFormData,
   NoticeFormData,
   FeeFormData,
+  StudentAdmissionApplyFormData,
+  TeacherApplyFormData,
 } from "@/schemas";
 
 export const authService = {
@@ -108,6 +110,7 @@ export const teacherService = {
 export const classService = {
   getAll: (params?: Record<string, unknown>) =>
     api.get<PaginatedResponse<ClassRoom>>("/classes/", { params }).then((r) => r.data),
+  getById: (id: string) => api.get<ClassRoom>(`/classes/${id}/`).then((r) => r.data),
   getSections: (classId?: string) =>
     api
       .get<PaginatedResponse<Section>>("/sections/", { params: { class: classId } })
@@ -238,6 +241,39 @@ export const settingsService = {
     api.patch<SchoolSettings>("/settings/school/", data).then((r) => r.data),
   updateProfile: (data: Partial<User>) =>
     api.patch<User>("/settings/profile/", data).then((r) => r.data),
+};
+
+export const applicationService = {
+  submitStudentAdmission: (data: StudentAdmissionApplyFormData) =>
+    api.post<{ message: string }>("/admissions/", data).then((r) => r.data),
+  submitTeacherApplication: (data: TeacherApplyFormData) =>
+    api.post<{ message: string }>("/teacher-applications/", data).then((r) => r.data),
+  getStudentAdmissions: () =>
+    api
+      .get<import("@/types").PaginatedResponse<import("@/types").StudentAdmissionRequest>>(
+        "/admissions/"
+      )
+      .then((r) => r.data),
+  getTeacherApplications: () =>
+    api
+      .get<import("@/types").PaginatedResponse<import("@/types").TeacherApplicationRequest>>(
+        "/teacher-applications/"
+      )
+      .then((r) => r.data),
+  reviewStudentAdmission: (
+    id: string,
+    data: { status: "accepted" | "rejected"; reviewNote?: string }
+  ) =>
+    api
+      .patch<import("@/types").StudentAdmissionRequest>(`/admissions/${id}/`, data)
+      .then((r) => r.data),
+  reviewTeacherApplication: (
+    id: string,
+    data: { status: "accepted" | "rejected"; reviewNote?: string }
+  ) =>
+    api
+      .patch<import("@/types").TeacherApplicationRequest>(`/teacher-applications/${id}/`, data)
+      .then((r) => r.data),
 };
 
 export { menuService, getDemoMenus } from "./menu-service";

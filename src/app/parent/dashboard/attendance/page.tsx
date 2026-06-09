@@ -1,281 +1,113 @@
-// "use client";
-
-// import { ColumnDef } from "@tanstack/react-table";
-// import { Download } from "lucide-react";
-// import { PageHeader } from "@/components/shared/page-header";
-// import { DataTable } from "@/components/shared/data-table";
-// import { Button } from "@/components/ui/button";
-// import { Badge } from "@/components/ui/badge";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { mockAttendance, mockParentChildren } from "@/lib/mock-data";
-// import { ATTENDANCE_STATUS } from "@/constants";
-// import type { AttendanceRecord, AttendanceStatus } from "@/types";
-// import { formatDate } from "@/lib/utils";
-// import { toast } from "sonner";
-
-// export default function ParentAttendancePage() {
-//   const child = mockParentChildren[0];
-//   const present = mockAttendance.filter((a) => a.status === "present").length;
-//   const total = mockAttendance.length;
-//   const rate = Math.round((present / total) * 100);
-
-//   const columns: ColumnDef<AttendanceRecord>[] = [
-//     {
-//       accessorKey: "date",
-//       header: "Date",
-//       cell: ({ row }) => formatDate(row.original.date),
-//     },
-//     { accessorKey: "className", header: "Class" },
-//     {
-//       accessorKey: "status",
-//       header: "Status",
-//       cell: ({ row }) => {
-//         const status = row.original.status as AttendanceStatus;
-//         const config = ATTENDANCE_STATUS[status];
-//         return <Badge className={`${config.color} border-0 text-white`}>{config.label}</Badge>;
-//       },
-//     },
-//   ];
-
-//   return (
-//     <div className="space-y-6">
-//       <PageHeader
-//         title="Attendance"
-//         description={`Attendance history for ${child.name}`}
-//         breadcrumbs={[
-//           { label: "Parent Portal", href: "/parent/dashboard" },
-//           { label: "Attendance" },
-//         ]}
-//         actions={
-//           <Button variant="outline" size="sm" onClick={() => toast.success("Report downloaded")}>
-//             <Download className="mr-2 h-4 w-4" /> Export Report
-//           </Button>
-//         }
-//       />
-
-//       <div className="grid gap-4 sm:grid-cols-4">
-//         {[
-//           { label: "Attendance Rate", value: `${rate}%` },
-//           { label: "Present", value: present },
-//           { label: "Absent", value: mockAttendance.filter((a) => a.status === "absent").length },
-//           { label: "Late", value: mockAttendance.filter((a) => a.status === "late").length },
-//         ].map((s) => (
-//           <Card key={s.label}>
-//             <CardContent className="pt-6 text-center">
-//               <p className="text-2xl font-bold">{s.value}</p>
-//               <p className="text-sm text-muted-foreground">{s.label}</p>
-//             </CardContent>
-//           </Card>
-//         ))}
-//       </div>
-
-//       <Card>
-//         <CardHeader>
-//           <CardTitle className="text-base">Monthly Summary</CardTitle>
-//         </CardHeader>
-//         <CardContent>
-//           <div className="flex h-32 items-end gap-2">
-//             {["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map((m, i) => (
-//               <div key={m} className="flex flex-1 flex-col items-center gap-1">
-//                 <div
-//                   className="w-full rounded-t bg-primary/80 transition-all"
-//                   style={{ height: `${75 + i * 4}%` }}
-//                 />
-//                 <span className="text-xs text-muted-foreground">{m}</span>
-//               </div>
-//             ))}
-//           </div>
-//         </CardContent>
-//       </Card>
-
-//       <DataTable columns={columns} data={mockAttendance} />
-//     </div>
-//   );
-// }
-
-
-
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-import { Download, CheckCircle, XCircle, Clock } from "lucide-react";
-
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
-import { DataTable } from "@/components/shared/data-table";
-
-import { Button } from "@/components/ui/button";
+import { useParentStore } from "@/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import { Progress } from "@/components/ui/progress";
-
-import { mockAttendance, mockParentChildren } from "@/lib/mock-data";
-import { ATTENDANCE_STATUS } from "@/constants";
-import type { AttendanceRecord, AttendanceStatus } from "@/types";
+import { DataTable } from "@/components/shared/data-table";
+import { ColumnDef } from "@tanstack/react-table";
+import { ClipboardCheck, TrendingUp, AlertTriangle } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { toast } from "sonner";
+import type { ParentChildAttendance } from "@/types/parent";
 
-export default function ParentAttendancePage() {
-  const child = mockParentChildren[0];
+export default function AttendancePage() {
+  const [mounted, setMounted] = useState(false);
+  const { children, selectedChildId, attendance } = useParentStore();
 
-  const present = mockAttendance.filter(
-    (a) => a.status === "present"
-  ).length;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const absent = mockAttendance.filter(
-    (a) => a.status === "absent"
-  ).length;
+  if (!mounted) return null;
 
-  const late = mockAttendance.filter(
-    (a) => a.status === "late"
-  ).length;
+  const child = children.find((c) => c.id === selectedChildId);
+  if (!child) return null;
 
-  const total = mockAttendance.length;
-  const rate = Math.round((present / total) * 100);
+  const records = attendance[child.id] || [];
+  
+  const presentCount = records.filter(r => r.status === "present").length;
+  const absentCount = records.filter(r => r.status === "absent").length;
+  const lateCount = records.filter(r => r.status === "late").length;
+  const totalDays = records.length;
+  const attendancePercentage = totalDays > 0 ? Math.round(((presentCount + lateCount) / totalDays) * 100) : 0;
 
-  const columns: ColumnDef<AttendanceRecord>[] = [
+  const columns: ColumnDef<ParentChildAttendance>[] = [
     {
       accessorKey: "date",
       header: "Date",
-      cell: ({ row }) => formatDate(row.original.date),
+      cell: ({ row }) => <span className="font-medium text-white">{formatDate(row.original.date)}</span>,
     },
-    { accessorKey: "className", header: "Class" },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status as AttendanceStatus;
-        const config = ATTENDANCE_STATUS[status];
-
+        const status = row.original.status;
+        const color = 
+          status === "present" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+          status === "absent" ? "bg-red-500/10 text-red-400 border-red-500/20" :
+          "bg-amber-500/10 text-amber-400 border-amber-500/20";
         return (
-          <Badge className={`${config.color} text-white`}>
-            {config.label}
+          <Badge variant="outline" className={`capitalize ${color}`}>
+            {status.replace("_", " ")}
           </Badge>
         );
       },
+    },
+    {
+      accessorKey: "remarks",
+      header: "Remarks",
+      cell: ({ row }) => <span className="text-zinc-400">{row.original.remarks || "—"}</span>,
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
       <PageHeader
-        title="Attendance"
-        description={`Attendance report of ${child.name}`}
-        breadcrumbs={[
-          {
-            label: "Parent Portal",
-            href: "/parent/dashboard",
-          },
-          { label: "Attendance" },
-        ]}
-        actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              toast.success("Report downloaded")
-            }
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
-        }
+        title="Attendance Records"
+        description={`View attendance history for ${child.name}.`}
+        breadcrumbs={[{ label: "Parent Dashboard", href: "/parent/dashboard" }, { label: "Attendance" }]}
       />
 
-      {/* SUMMARY CARDS */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <CheckCircle className="mx-auto mb-2 h-6 w-6 text-green-500" />
-            <p className="text-3xl font-bold">{present}</p>
-            <p className="text-sm text-muted-foreground">
-              Present
-            </p>
+      <div className="grid gap-6 md:grid-cols-4">
+        <Card className="dashboard-card border-white/5 bg-gradient-to-br from-emerald-500/10 to-zinc-950">
+          <CardContent className="p-6 text-center">
+            <ClipboardCheck className="mx-auto mb-2 h-8 w-8 text-emerald-400" />
+            <p className="text-sm font-medium text-zinc-400">Present</p>
+            <h3 className="text-3xl font-bold text-white">{presentCount}</h3>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <XCircle className="mx-auto mb-2 h-6 w-6 text-red-500" />
-            <p className="text-3xl font-bold">{absent}</p>
-            <p className="text-sm text-muted-foreground">
-              Absent
-            </p>
+        <Card className="dashboard-card border-white/5 bg-gradient-to-br from-red-500/10 to-zinc-950">
+          <CardContent className="p-6 text-center">
+            <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-red-400" />
+            <p className="text-sm font-medium text-zinc-400">Absent</p>
+            <h3 className="text-3xl font-bold text-white">{absentCount}</h3>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <Clock className="mx-auto mb-2 h-6 w-6 text-yellow-500" />
-            <p className="text-3xl font-bold">{late}</p>
-            <p className="text-sm text-muted-foreground">
-              Late
-            </p>
+        <Card className="dashboard-card border-white/5 bg-gradient-to-br from-amber-500/10 to-zinc-950">
+          <CardContent className="p-6 text-center">
+            <TrendingUp className="mx-auto mb-2 h-8 w-8 text-amber-400" />
+            <p className="text-sm font-medium text-zinc-400">Late</p>
+            <h3 className="text-3xl font-bold text-white">{lateCount}</h3>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-3xl font-bold">
-              {rate}%
-            </p>
-
-            <p className="mb-2 text-center text-sm text-muted-foreground">
-              Attendance Rate
-            </p>
-
-            <Progress value={rate} />
+        <Card className="dashboard-card border-white/5 bg-gradient-to-br from-blue-500/10 to-zinc-950">
+          <CardContent className="p-6 text-center">
+            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20">
+              <span className="text-sm font-bold text-blue-400">%</span>
+            </div>
+            <p className="text-sm font-medium text-zinc-400">Overall</p>
+            <h3 className="text-3xl font-bold text-white">{attendancePercentage}%</h3>
           </CardContent>
         </Card>
       </div>
 
-      {/* MONTHLY PROGRESS */}
-      <Card>
+      <Card className="dashboard-card border-white/5">
         <CardHeader>
-          <CardTitle>Monthly Attendance</CardTitle>
+          <CardTitle className="text-lg text-white">Attendance History</CardTitle>
         </CardHeader>
-
         <CardContent>
-          <div className="flex h-32 items-end gap-3">
-            {["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map(
-              (m, i) => (
-                <div
-                  key={m}
-                  className="flex flex-1 flex-col items-center gap-1"
-                >
-                  <div
-                    className="w-full rounded-t bg-primary/80"
-                    style={{
-                      height: `${60 + i * 6}%`,
-                    }}
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    {m}
-                  </span>
-                </div>
-              )
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* TABLE */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance History</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={mockAttendance}
-          />
+          <DataTable columns={columns} data={records} />
         </CardContent>
       </Card>
     </div>

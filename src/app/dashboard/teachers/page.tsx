@@ -3,27 +3,37 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus, MoreHorizontal, Eye } from "lucide-react";
+import { Plus, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { SearchInput } from "@/components/shared/search-input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { mockTeachers } from "@/lib/mock-data";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { useTeachersStorage } from "@/hooks/use-teachers-storage";
 import { getInitials, formatCurrency } from "@/lib/utils";
 import type { Teacher } from "@/types";
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
 
 export default function TeachersPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const { teachers, isLoaded, deleteTeacher } = useTeachersStorage();
+
   const filtered = useMemo(() =>
-    mockTeachers.filter((t) =>
+    teachers.filter((t) =>
       t.fullName.toLowerCase().includes(search.toLowerCase()) ||
       t.specialization.toLowerCase().includes(search.toLowerCase())
-    ), [search]);
+    ), [teachers, search]);
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this teacher?")) {
+      deleteTeacher(id);
+      toast.success("Teacher deleted successfully");
+    }
+  };
 
   const columns: ColumnDef<Teacher>[] = [
     {
@@ -61,11 +71,26 @@ export default function TeachersPage() {
             <DropdownMenuItem onClick={() => router.push(`/dashboard/teachers/${row.original.id}`)}>
               <Eye className="mr-2 h-4 w-4" /> View Profile
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/dashboard/teachers/edit/${row.original.id}`)}>
+              <Pencil className="mr-2 h-4 w-4" /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleDelete(row.original.id)} className="text-red-600 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950 dark:focus:text-red-600">
+              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
   ];
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

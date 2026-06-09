@@ -11,6 +11,7 @@ interface StatCardProps {
   trend?: { value: number; label: string };
   variant?: "default" | "primary" | "success" | "warning";
   isCurrency?: boolean;
+  className?: string;
 }
 
 const variantStyles = {
@@ -40,13 +41,14 @@ export function StatCard({
   trend,
   variant = "default",
   isCurrency,
+  className,
 }: StatCardProps) {
   const displayValue =
     typeof value === "number" && isCurrency ? formatCurrency(value) : value;
   const styles = variantStyles[variant];
 
   return (
-    <div className="dashboard-card group relative overflow-hidden p-6">
+    <div className={cn("dashboard-card group relative overflow-hidden p-6", className)}>
       <div
         className={cn(
           "pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100",

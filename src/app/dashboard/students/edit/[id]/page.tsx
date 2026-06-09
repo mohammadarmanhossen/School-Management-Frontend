@@ -83,3 +83,5 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
     </div>
   );
 }
+
+

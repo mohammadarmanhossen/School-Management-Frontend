@@ -1,5 +1,4 @@
 export type UserRole =
-  | "super_admin"
   | "school_admin"
   | "teacher"
   | "student"
@@ -7,7 +6,6 @@ export type UserRole =
   | "librarian";
 
 export type ApiRole =
-  | "SUPER_ADMIN"
   | "ADMIN"
   | "TEACHER"
   | "STUDENT"
@@ -125,6 +123,37 @@ export interface Section {
   studentCount: number;
 }
 
+export type ApplicationStatus = "pending" | "accepted" | "rejected";
+
+export interface StudentAdmissionRequest {
+  id: string;
+  full_name: string;
+  dob: string;
+  gender: "male" | "female" | "other";
+  class_name: string;
+  phone: string;
+  address: string;
+  status: ApplicationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+}
+
+export interface TeacherApplicationRequest {
+  id: string;
+  full_name: string;
+  phone: string;
+  email: string;
+  address: string;
+  qualification: string;
+  experience: string;
+  subject: string;
+  status: ApplicationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+}
+
 export interface Subject {
   id: string;
   code: string;
@@ -179,6 +208,7 @@ export interface ExamResult {
   gpa: number;
   position?: number;
   remarks?: string;
+  className: string;
 }
 
 export interface Assignment {

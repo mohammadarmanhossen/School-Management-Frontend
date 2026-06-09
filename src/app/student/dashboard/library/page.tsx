@@ -1,26 +1,82 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { BookMarked, Wallet, AlertCircle, Clock, Search, BookOpen } from "lucide-react";
+import {
+  BookMarked,
+  Wallet,
+  AlertCircle,
+  Clock,
+  Search,
+  BookOpen,
+} from "lucide-react";
+
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
+
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { mockBookIssues, mockLibraryFines, mockStudentProfile } from "@/lib/mock-data";
+
+import {
+  mockBookIssues,
+  mockLibraryFines,
+  mockStudentProfile,
+} from "@/lib/mock-data";
+
 import { formatDate } from "@/lib/utils";
+import { toast } from "sonner";
+import { useBookStore, useIssueStore } from "@/store";
 
 export default function StudentLibraryPage() {
   const profile = mockStudentProfile;
-  const myIssues = mockBookIssues.filter((issue) => issue.memberId === "student-1");
-  const myFines = mockLibraryFines.filter((fine) => fine.memberId === "student-1");
-  
-  const totalIssued = myIssues.filter(i => i.status === "issued").length;
-  const totalOverdue = myIssues.filter(i => i.status === "overdue").length;
-  const totalFinesAmt = myFines.filter(f => f.status === "unpaid").reduce((acc, f) => acc + f.amount, 0);
+  const issues = useIssueStore((state) => state.issues);
+  const issueBook = useIssueStore((state) => state.issueBook);
+  const books = useBookStore((state) => state.books);
+  const updateBook = useBookStore((state) => state.updateBook);
 
-  const columns: ColumnDef<typeof myIssues[0]>[] = [
+  const [openBorrow, setOpenBorrow] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const myIssues = issues.filter(
+    (issue) => issue.memberId === "student-1"
+  );
+
+  const myFines = mockLibraryFines.filter(
+    (fine) => fine.memberId === "student-1"
+  );
+
+  const totalIssued = myIssues.filter(
+    (i) => i.status === "issued"
+  ).length;
+
+  const totalOverdue = myIssues.filter(
+    (i) => i.status === "overdue"
+  ).length;
+
+  const totalFinesAmt = myFines
+    .filter((f) => f.status === "unpaid")
+    .reduce((acc, f) => acc + f.amount, 0);
+
+  const handleBorrowBook = (bookTitle: string) => {
+    setSelectedBook(bookTitle);
+    setOpenBorrow(true);
+  };
+
+  const columns: ColumnDef<(typeof myIssues)[0]>[] = [
     {
       accessorKey: "bookTitle",
       header: "Book Title",
@@ -30,8 +86,12 @@ export default function StudentLibraryPage() {
             <BookOpen className="h-5 w-5 text-blue-500" />
           </div>
           <div>
-            <p className="font-medium text-zinc-200">{row.original.bookTitle}</p>
-            <p className="text-xs text-zinc-500">ID: {row.original.bookId}</p>
+            <p className="font-medium text-white">
+              {row.original.bookTitle}
+            </p>
+            <p className="text-xs text-zinc-500">
+              ID: {row.original.bookId}
+            </p>
           </div>
         </div>
       ),
@@ -42,7 +102,7 @@ export default function StudentLibraryPage() {
       cell: ({ row }) => (
         <div className="flex items-center gap-2 text-zinc-400">
           <Clock className="h-4 w-4" />
-          <span>{formatDate(row.original.issueDate)}</span>
+          {formatDate(row.original.issueDate)}
         </div>
       ),
     },
@@ -50,133 +110,220 @@ export default function StudentLibraryPage() {
       accessorKey: "returnDate",
       header: "Due Date",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2 font-medium">
-          <span className={row.original.status === "overdue" ? "text-red-400" : "text-zinc-300"}>
-            {formatDate(row.original.returnDate)}
-          </span>
-        </div>
+        <span
+          className={
+            row.original.status === "overdue"
+              ? "text-red-400 font-medium"
+              : "text-zinc-300"
+          }
+        >
+          {formatDate(row.original.returnDate)}
+        </span>
       ),
     },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-        return (
-          <Badge
-            variant={status === "returned" ? "success" : status === "overdue" ? "destructive" : "default"}
-            className="capitalize"
-          >
-            {status}
-          </Badge>
-        );
-      },
+      cell: ({ row }) => (
+        <Badge
+          className={
+            row.original.status === "returned"
+              ? "bg-green-500"
+              : row.original.status === "overdue"
+              ? "bg-red-500"
+              : "bg-blue-500"
+          }
+        >
+          {row.original.status}
+        </Badge>
+      ),
     },
     {
       id: "actions",
-      cell: () => {
-        return (
-          <Button variant="ghost" size="sm" className="hover:bg-white/5">
-            View Details
-          </Button>
-        );
-      }
-    }
+      cell: ({ row }) => (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() =>
+            handleBorrowBook(row.original.bookTitle)
+          }
+        >
+          Borrow Again
+        </Button>
+      ),
+    },
   ];
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-8">
+      {/* HEADER */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <PageHeader
           title="Digital Library"
-          description={`Welcome back, ${profile.name}. Explore your reading history and current issues.`}
+          description={`Welcome back, ${profile.name}`}
           breadcrumbs={[
-            { label: "Student Portal", href: "/student/dashboard" },
+            {
+              label: "Student Portal",
+              href: "/student/dashboard",
+            },
             { label: "Library" },
           ]}
         />
+
         <div className="flex items-center gap-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-            <Input 
-              placeholder="Search library catalog..." 
-              className="w-full pl-9 bg-zinc-950/50 border-white/[0.06] focus-visible:ring-blue-500 sm:w-64 rounded-full"
+            <Input
+              placeholder="Search books..."
+              className="pl-9 w-64"
             />
           </div>
-          <Button className="rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20">
+
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() =>
+              toast.success("Browse opened")
+            }
+          >
             Browse Books
           </Button>
         </div>
       </div>
 
-      {/* Premium Stat Cards */}
+      {/* STATS */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="relative overflow-hidden border-white/[0.08] bg-gradient-to-br from-blue-500/10 via-zinc-950 to-zinc-950 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-blue-500/20 blur-2xl transition-all group-hover:bg-blue-500/30" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/20 text-blue-400 shadow-inner shadow-blue-500/20">
-                <BookMarked className="h-7 w-7" />
-              </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <BookMarked className="text-blue-500" />
               <div>
-                <p className="text-sm font-medium text-zinc-400">Currently Issued</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold text-white">{totalIssued}</p>
-                  <span className="text-xs font-medium text-blue-400">Books</span>
-                </div>
+                <p className="text-sm text-zinc-400">
+                  Issued Books
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  {totalIssued}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-white/[0.08] bg-gradient-to-br from-red-500/10 via-zinc-950 to-zinc-950 transition-all duration-300 hover:border-red-500/30 hover:shadow-lg hover:shadow-red-500/10 hover:-translate-y-1 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-red-500/20 blur-2xl transition-all group-hover:bg-red-500/30" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/20 text-red-400 shadow-inner shadow-red-500/20">
-                <AlertCircle className="h-7 w-7" />
-              </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="text-red-500" />
               <div>
-                <p className="text-sm font-medium text-zinc-400">Overdue Returns</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold text-white">{totalOverdue}</p>
-                  <span className="text-xs font-medium text-red-400">Needs attention</span>
-                </div>
+                <p className="text-sm text-zinc-400">
+                  Overdue
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  {totalOverdue}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="relative overflow-hidden border-white/[0.08] bg-gradient-to-br from-amber-500/10 via-zinc-950 to-zinc-950 transition-all duration-300 hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/10 hover:-translate-y-1 group">
-          <div className="absolute right-0 top-0 -mr-4 -mt-4 h-24 w-24 rounded-full bg-amber-500/20 blur-2xl transition-all group-hover:bg-amber-500/30" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 shadow-inner shadow-amber-500/20">
-                <Wallet className="h-7 w-7" />
-              </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <Wallet className="text-yellow-500" />
               <div>
-                <p className="text-sm font-medium text-zinc-400">Pending Fines</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-bold text-white"><span className="text-xl">৳</span>{totalFinesAmt}</p>
-                </div>
+                <p className="text-sm text-zinc-400">
+                  Pending Fines
+                </p>
+                <p className="text-2xl font-bold text-white">
+                  ৳{totalFinesAmt}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-white/[0.08] bg-zinc-950 shadow-xl overflow-hidden">
-        <CardHeader className="border-b border-white/[0.06] bg-zinc-900/50 px-6 py-5">
-          <CardTitle className="text-lg font-semibold text-white">Reading History & Issues</CardTitle>
-          <CardDescription className="text-zinc-400">Track all your current and past library activities</CardDescription>
+      {/* TABLE */}
+      <Card>
+        <CardHeader>
+          <CardTitle>My Books</CardTitle>
+          <CardDescription>
+            Current issued and past library history
+          </CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="px-6 py-4">
-            <DataTable columns={columns} data={myIssues} />
-          </div>
+
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={myIssues}
+          />
         </CardContent>
       </Card>
+
+      {/* BORROW MODAL */}
+      {openBorrow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-xl bg-zinc-900 p-6 border border-white/10">
+            <h2 className="text-xl font-semibold text-white">
+              Borrow Book
+            </h2>
+
+            <p className="text-zinc-400 mt-2">
+              Do you want to borrow:
+            </p>
+
+            <p className="text-blue-400 font-medium mt-1">
+              {selectedBook}
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setOpenBorrow(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  const book = books.find(b => b.title === selectedBook);
+                  if (!book) {
+                    toast.error("Book not found in store. Please browse and select a valid book.");
+                    return;
+                  }
+                  if (book.availableCopies <= 0) {
+                    toast.error("Book is currently out of stock.");
+                    return;
+                  }
+
+                  issueBook({
+                    bookId: book.id,
+                    bookTitle: book.title,
+                    memberId: "student-1",
+                    memberName: profile.name,
+                    memberType: "student",
+                    issueDate: new Date().toISOString().split("T")[0],
+                    returnDate: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
+                  });
+
+                  updateBook(book.id, {
+                    totalCopies: book.totalCopies,
+                    availableCopies: book.availableCopies - 1,
+                  } as any);
+
+                  setOpenBorrow(false);
+                  toast.success(
+                    "Book borrowed successfully"
+                  );
+                }}
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

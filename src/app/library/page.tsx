@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BookOpen,
   BookMarked,
@@ -12,9 +13,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useLibrarianDashboard, useBookIssues } from "@/modules/library/hooks/use-library-data";
-import { useAuthStore } from "@/store";
+import { useLibraryStore } from "@/store";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 const STATUS_COLORS = {
@@ -24,84 +23,97 @@ const STATUS_COLORS = {
 };
 
 export default function LibrarianDashboardPage() {
-  const { user } = useAuthStore();
-  const { data: stats, isLoading: statsLoading } = useLibrarianDashboard();
-  const { data: issues, isLoading: issuesLoading } = useBookIssues();
+  const [mounted, setMounted] = useState(false);
+  const { books, issues, members, fines, activities } = useLibraryStore();
 
-  const recentIssues = issues?.slice(0, 5) ?? [];
-  const overdueCount = issues?.filter((i) => i.status === "overdue").length ?? 0;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const totalBooks = books.reduce((acc, b) => acc + b.totalCopies, 0);
+  const availableBooks = books.reduce((acc, b) => acc + b.availableCopies, 0);
+  const issuedBooks = issues.filter(i => i.status === "issued" || i.status === "overdue").length;
+  const overdueBooks = issues.filter(i => i.status === "overdue").length;
+  const activeMembers = members.filter(m => m.status === "active").length;
+  const pendingFines = fines.filter(f => f.status === "unpaid").reduce((acc, f) => acc + f.amount, 0);
+
+  const recentActivities = activities.slice(0, 5);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Welcome, ${user?.firstName || "Librarian"}!`}
-        description="Library management overview and activity"
-        breadcrumbs={[{ label: "Library Dashboard" }]}
+        title="Library Dashboard"
+        description="Complete overview of library operations and analytics."
+        breadcrumbs={[{ label: "Library" }]}
       />
 
-      {statsLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
-          ))}
-        </div>
-      ) : stats ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard title="Total Books" value={stats.totalBooks} icon={BookOpen} variant="primary" />
-          <StatCard title="Available Books" value={stats.availableBooks} icon={Library} variant="success" />
-          <StatCard title="Issued Books" value={stats.issuedBooks} icon={BookMarked} variant="default" />
-          <StatCard title="Overdue Books" value={stats.overdueBooks} icon={AlertTriangle} variant="warning" />
-          <StatCard title="Active Members" value={stats.activeMembers} icon={Users} variant="primary" />
-          <StatCard
-            title="Pending Fines"
-            value={stats.pendingFines}
-            icon={Wallet}
-            isCurrency
-            variant="warning"
-          />
-        </div>
-      ) : null}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <StatCard className="xl:col-span-2" title="Total Books" value={totalBooks} icon={BookOpen} variant="primary" />
+        <StatCard className="xl:col-span-2" title="Available Books" value={availableBooks} icon={Library} variant="success" />
+        <StatCard className="xl:col-span-2" title="Active Members" value={activeMembers} icon={Users} variant="primary" />
+        
+        <StatCard className="xl:col-span-2" title="Issued Books" value={issuedBooks} icon={BookMarked} variant="default" />
+        <StatCard className="xl:col-span-2" title="Overdue Books" value={overdueBooks} icon={AlertTriangle} variant="warning" />
+        <StatCard
+          className="xl:col-span-2"
+          title="Pending Fines"
+          value={pendingFines}
+          icon={Wallet}
+          isCurrency
+          variant="warning"
+        />
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="dashboard-card">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="dashboard-card lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base text-white">Recent Issues</CardTitle>
+            <CardTitle className="text-base text-white">Recent Activities</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {issuesLoading ? (
-              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-14 rounded-lg" />)
-            ) : recentIssues.length === 0 ? (
-              <p className="text-sm text-zinc-500">No recent issues</p>
+            {recentActivities.length === 0 ? (
+              <p className="text-sm text-zinc-500">No recent activities</p>
             ) : (
-              recentIssues.map((issue) => (
-                <div
-                  key={issue.id}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">{issue.bookTitle}</p>
-                    <p className="text-xs text-zinc-500">{issue.memberName}</p>
+              recentActivities.map((activity) => {
+                let badgeColor = "bg-zinc-500/10 text-zinc-400 border-zinc-500/20";
+                if (activity.type === "issue") badgeColor = "bg-blue-500/10 text-blue-400 border-blue-500/20";
+                if (activity.type === "return") badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                if (activity.type === "fine") badgeColor = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                if (activity.type === "book_added") badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+
+                return (
+                  <div
+                    key={activity.id}
+                    className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-zinc-200">{activity.title}</p>
+                      <p className="text-xs text-zinc-500">{formatDate(activity.date)}</p>
+                    </div>
+                    <Badge variant="outline" className={`capitalize ${badgeColor}`}>
+                      {activity.type.replace("_", " ")}
+                    </Badge>
                   </div>
-                  <Badge className={STATUS_COLORS[issue.status]}>{issue.status}</Badge>
-                </div>
-              ))
+                );
+              })
             )}
           </CardContent>
         </Card>
 
-        <Card className="dashboard-card">
+        <Card className="dashboard-card lg:col-span-1">
           <CardHeader>
             <CardTitle className="text-base text-white">Quick Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border border-white/[0.06] px-4 py-3">
-              <span className="text-sm text-zinc-400">Overdue items requiring action</span>
-              <span className="text-lg font-bold text-red-400">{overdueCount}</span>
+              <span className="text-sm text-zinc-400">Overdue items</span>
+              <span className="text-lg font-bold text-red-400">{overdueBooks}</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-white/[0.06] px-4 py-3">
-              <span className="text-sm text-zinc-400">Pending fine collection</span>
+              <span className="text-sm text-zinc-400">Total Unpaid Fines</span>
               <span className="text-lg font-bold text-amber-400">
-                {stats ? formatCurrency(stats.pendingFines) : "—"}
+                {formatCurrency(pendingFines)}
               </span>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-white/[0.06] px-4 py-3">

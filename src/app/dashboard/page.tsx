@@ -8,7 +8,6 @@ import {
   School,
   BookOpen,
   ClipboardCheck,
-  Wallet,
   FileText,
   Sparkles,
 } from "lucide-react";
@@ -18,7 +17,6 @@ import { RecentActivities } from "@/features/dashboard/recent-activities";
 import {
   mockDashboardStats,
   mockAttendanceChart,
-  mockRevenueChart,
   mockStudentGrowthChart,
   mockExamPerformanceChart,
 } from "@/lib/mock-data";
@@ -62,11 +60,10 @@ function AdminDashboardContent() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Total Students" value={stats.totalStudents} icon={GraduationCap} trend={{ value: 12, label: "from last month" }} variant="primary" />
         <StatCard title="Total Teachers" value={stats.totalTeachers} icon={Users} trend={{ value: 3, label: "from last month" }} variant="success" />
         <StatCard title="Parents" value={892} icon={School} variant="default" />
-        <StatCard title="Revenue" value={stats.monthlyFeeCollection} icon={Wallet} isCurrency trend={{ value: 8, label: "from last month" }} variant="primary" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -78,11 +75,10 @@ function AdminDashboardContent() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <ChartCard title="Monthly Attendance" data={mockAttendanceChart} type="area" dataKeys={[{ key: "present", color: "#34d399", name: "Present %" }, { key: "absent", color: "#f87171", name: "Absent %" }]} />
-        <ChartCard title="Fee Revenue" data={mockRevenueChart} type="bar" dataKeys={[{ key: "revenue", color: "#60a5fa", name: "Revenue" }, { key: "target", color: "#52525b", name: "Target" }]} />
+        <ChartCard title="Student Growth" data={mockStudentGrowthChart} type="line" dataKeys={[{ key: "students", color: "#a78bfa", name: "Students" }]} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ChartCard title="Student Growth" data={mockStudentGrowthChart} type="line" dataKeys={[{ key: "students", color: "#a78bfa", name: "Students" }]} />
+      <div className="grid gap-6 lg:grid-cols-1">
         <ChartCard title="Exam Performance by Class" data={mockExamPerformanceChart} type="bar" dataKeys={[{ key: "average", color: "#fbbf24", name: "Average Score" }]} />
       </div>
 
@@ -98,12 +94,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
     const target = getDefaultDashboard(user.role);
-    if (user.role !== "school_admin" && user.role !== "super_admin" && target !== "/dashboard") {
+    if (user.role !== "school_admin" && target !== "/dashboard") {
       router.replace(target);
     }
   }, [user, router]);
 
-  if (!user || (user.role !== "school_admin" && user.role !== "super_admin")) {
+  if (!user || user.role !== "school_admin") {
     return null;
   }
 

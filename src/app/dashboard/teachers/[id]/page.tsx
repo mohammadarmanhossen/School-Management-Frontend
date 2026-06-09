@@ -8,20 +8,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { mockTeachers } from "@/lib/mock-data";
+import { useTeachersStorage } from "@/hooks/use-teachers-storage";
 import { getInitials, formatCurrency, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 export default function TeacherDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const teacher = mockTeachers.find((t) => t.id === id);
+  const { getTeacherById, isLoaded } = useTeachersStorage();
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  const teacher = getTeacherById(id);
   if (!teacher) notFound();
 
   return (
     <div className="space-y-6">
       <PageHeader title={teacher.fullName} description={teacher.employeeId}
         breadcrumbs={[{ label: "Teachers", href: "/dashboard/teachers" }, { label: teacher.fullName }]}
-        actions={<Button asChild variant="outline"><Link href="/dashboard/teachers/create"><Pencil className="mr-2 h-4 w-4" /> Edit</Link></Button>} />
+        actions={<Button asChild variant="outline"><Link href={`/dashboard/teachers/edit/${teacher.id}`}><Pencil className="mr-2 h-4 w-4" /> Edit</Link></Button>} />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>
           <CardContent className="flex flex-col items-center pt-6">

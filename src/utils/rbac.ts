@@ -14,8 +14,7 @@ export function getDefaultDashboard(role: UserRole): string {
       return "/student/dashboard";
     case "librarian":
       return "/library";
-    case "super_admin":
-      return "/dashboard";
+
     default:
       return "/dashboard";
   }
@@ -41,7 +40,7 @@ export function canAccessRoute(
   pathname: string,
   menuItems: MenuItem[]
 ): boolean {
-  if (role === "super_admin" || role === "school_admin") return true;
+  if (role === "school_admin") return true;
 
   const allowedPaths = menuItems.map((item) => item.path);
   const defaultDashboard = getDefaultDashboard(role);

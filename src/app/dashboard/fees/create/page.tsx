@@ -13,9 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { mockStudents } from "@/lib/mock-data";
+import { useFeeStore } from "@/store";
 
 export default function CreateFeePage() {
   const router = useRouter();
+  const addFee = useFeeStore((state) => state.addFee);
   
   const {
     register,
@@ -28,7 +30,9 @@ export default function CreateFeePage() {
   });
 
   const onSubmit = async (data: FeeFormData) => {
-    console.log("Submitting fee data:", data);
+    const student = mockStudents.find((s) => s.id === data.studentId);
+    addFee(data, student?.fullName || "Unknown Student");
+    
     await new Promise((resolve) => setTimeout(resolve, 800));
     toast.success("Fee record created successfully!");
     router.push("/dashboard/fees");

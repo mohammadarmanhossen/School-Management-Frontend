@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Users,
   BookOpen,
   Calendar,
   ClipboardCheck,
-  Eye,
 } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -104,14 +102,8 @@ export default function TeacherClassesPage() {
     {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => (
+      cell: () => (
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" asChild>
-            <Link href={`/teacher/classes/${row.original.id}`}>
-              <Eye className="mr-1 h-4 w-4" />
-              View
-            </Link>
-          </Button>
 
           <Button size="sm">
             Attendance
@@ -173,7 +165,7 @@ export default function TeacherClassesPage() {
             <Calendar className="h-10 w-10 text-primary" />
             <div>
               <p className="text-sm text-muted-foreground">
-                Today's Classes
+                Today&apos;s Classes
               </p>
               <h3 className="text-2xl font-bold">5</h3>
             </div>

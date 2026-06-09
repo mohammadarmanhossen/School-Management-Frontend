@@ -1,122 +1,127 @@
 "use client";
 
-import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { RotateCcw, AlertTriangle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
+import { useLibraryStore } from "@/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/shared/data-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RotateCcw, Search } from "lucide-react";
+import type { LibraryIssue } from "@/types/library";
+import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  useBookIssues,
-  useReturnBook,
-  calculateLateFine,
-} from "@/modules/library/hooks/use-library-data";
-import { formatCurrency } from "@/lib/utils";
-import { toast } from "sonner";
-import type { BookIssue } from "@/types";
 
 export default function ReturnBooksPage() {
-  const { data: issues = [], isLoading } = useBookIssues();
-  const returnMutation = useReturnBook();
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const { books, members, issues, returnBook } = useLibraryStore();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const pendingReturns = issues.filter((i) => i.status !== "returned");
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const handleReturn = async (issue: BookIssue) => {
-    const today = new Date().toISOString().split("T")[0];
-    const fine = calculateLateFine(issue.returnDate, today);
-    const msg = fine > 0
-      ? `Return "${issue.bookTitle}"? Late fine: ${formatCurrency(fine)}`
-      : `Return "${issue.bookTitle}"?`;
-    if (!confirm(msg)) return;
+  if (!mounted) return null;
 
-    setProcessingId(issue.id);
-    try {
-      await returnMutation.mutateAsync({ issueId: issue.id, actualReturnDate: today });
-    } catch {
-      toast.success(
-        fine > 0
-          ? `Book returned with ${formatCurrency(fine)} fine (demo mode)`
-          : "Book returned (demo mode)"
-      );
-    } finally {
-      setProcessingId(null);
-    }
-  };
+  // Only show active issues (not returned)
+  const activeIssues = issues.filter(i => i.status !== "returned");
 
-  const columns: ColumnDef<BookIssue>[] = [
-    { accessorKey: "bookTitle", header: "Book" },
-    { accessorKey: "memberName", header: "Member" },
-    { accessorKey: "issueDate", header: "Issued" },
-    { accessorKey: "returnDate", header: "Due Date" },
+  const filteredIssues = activeIssues.filter(i => {
+    const book = books.find(b => b.id === i.bookId);
+    const mem = members.find(m => m.id === i.memberId);
+    const term = searchTerm.toLowerCase();
+    return (
+      book?.title.toLowerCase().includes(term) ||
+      mem?.name.toLowerCase().includes(term) ||
+      i.id.toLowerCase().includes(term)
+    );
+  });
+
+  const columns: ColumnDef<LibraryIssue>[] = [
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "memberId",
+      header: "Member",
       cell: ({ row }) => {
-        const isOverdue = row.original.status === "overdue";
+        const mem = members.find(m => m.id === row.original.memberId);
         return (
-          <Badge className={isOverdue ? "border-red-500/30 bg-red-500/10 text-red-400" : "border-blue-500/30 bg-blue-500/10 text-blue-400"}>
-            {isOverdue && <AlertTriangle className="mr-1 h-3 w-3" />}
-            {row.original.status}
-          </Badge>
+          <div>
+            <p className="font-medium text-white">{mem?.name || "Unknown Member"}</p>
+            <p className="text-xs text-zinc-500 capitalize">{mem?.role}</p>
+          </div>
         );
-      },
+      }
     },
     {
-      id: "fine",
-      header: "Est. Fine",
+      accessorKey: "bookId",
+      header: "Book Details",
       cell: ({ row }) => {
-        const fine = row.original.status === "overdue"
-          ? calculateLateFine(row.original.returnDate, new Date().toISOString().split("T")[0])
-          : 0;
-        return fine > 0 ? (
-          <span className="text-amber-400">{formatCurrency(fine)}</span>
-        ) : (
-          <span className="text-zinc-500">—</span>
+        const book = books.find(b => b.id === row.original.bookId);
+        return (
+          <div>
+            <p className="font-medium text-zinc-300">{book?.title || "Unknown Book"}</p>
+            <p className="text-xs text-zinc-500">ISBN: {book?.isbn}</p>
+          </div>
         );
-      },
+      }
     },
     {
-      id: "actions",
+      accessorKey: "issueDate",
+      header: "Issued On",
+      cell: ({ row }) => <span className="text-zinc-400">{formatDate(row.original.issueDate)}</span>
+    },
+    {
+      accessorKey: "dueDate",
+      header: "Due Date",
+      cell: ({ row }) => {
+        const isOverdue = new Date() > new Date(row.original.dueDate);
+        return (
+          <span className={`font-medium ${isOverdue ? "text-red-400" : "text-zinc-300"}`}>
+            {formatDate(row.original.dueDate)}
+          </span>
+        );
+      }
+    },
+    {
+      id: "action",
       header: "Action",
       cell: ({ row }) => (
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={processingId === row.original.id}
-          onClick={() => handleReturn(row.original)}
+        <Button 
+          size="sm" 
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          onClick={() => returnBook(row.original.id)}
         >
-          <RotateCcw className="mr-1 h-4 w-4" />
-          Return
+          <RotateCcw className="mr-2 h-4 w-4" /> Return Book
         </Button>
-      ),
-    },
+      )
+    }
   ];
-
-  const overdueCount = pendingReturns.filter((i) => i.status === "overdue").length;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Return Books"
-        description="Process book returns and calculate late fines"
+        description="Process returned books and calculate fines."
         breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Return Books" }]}
       />
 
-      {overdueCount > 0 && (
-        <Card className="dashboard-card border-red-500/20 bg-red-500/5">
-          <CardContent className="flex items-center gap-3 p-4">
-            <AlertTriangle className="h-5 w-5 text-red-400" />
-            <p className="text-sm text-red-300">
-              {overdueCount} book{overdueCount > 1 ? "s are" : " is"} overdue and may incur fines.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      <Card className="dashboard-card border-white/5">
+        <CardContent className="p-6">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative max-w-sm flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+              <Input 
+                placeholder="Search by member name, book title..." 
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
 
-      <DataTable columns={columns} data={pendingReturns} isLoading={isLoading} />
+          <DataTable columns={columns} data={filteredIssues} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

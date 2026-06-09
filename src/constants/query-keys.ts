@@ -19,6 +19,7 @@ export const queryKeys = {
   classes: {
     all: ["classes"] as const,
     list: (params?: Record<string, unknown>) => ["classes", "list", params] as const,
+    detail: (id: string) => ["classes", "detail", id] as const,
     sections: (classId?: string) => ["classes", "sections", classId] as const,
   },
   subjects: {
@@ -77,5 +78,10 @@ export const queryKeys = {
   settings: {
     school: ["settings", "school"] as const,
     profile: ["settings", "profile"] as const,
+  },
+  admissions: {
+    all: ["admissions"] as const,
+    students: () => ["admissions", "students"] as const,
+    teachers: () => ["admissions", "teachers"] as const,
   },
 } as const;

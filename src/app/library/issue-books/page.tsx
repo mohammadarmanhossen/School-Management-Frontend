@@ -1,184 +1,169 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { ColumnDef } from "@tanstack/react-table";
-import { BookMarked } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
-import { DataTable } from "@/components/shared/data-table";
+import { useLibraryStore } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/shared/data-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { BookMarked, User } from "lucide-react";
+import type { LibraryIssue } from "@/types/library";
+import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  useBooks,
-  useBookIssues,
-  useIssueBook,
-  useLibraryMembers,
-} from "@/modules/library/hooks/use-library-data";
-import { toast } from "sonner";
-import type { BookIssue } from "@/types";
-
-const issueSchema = z.object({
-  bookId: z.string().min(1),
-  memberId: z.string().min(1),
-  memberType: z.enum(["student", "teacher"]),
-  issueDate: z.string().min(1),
-  returnDate: z.string().min(1),
-});
-
-type IssueFormData = z.infer<typeof issueSchema>;
-
-const STATUS_COLORS = {
-  issued: "border-blue-500/30 bg-blue-500/10 text-blue-400",
-  returned: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-  overdue: "border-red-500/30 bg-red-500/10 text-red-400",
-};
 
 export default function IssueBooksPage() {
-  const { data: books = [] } = useBooks();
-  const { data: members = [] } = useLibraryMembers();
-  const { data: issues = [], isLoading } = useBookIssues();
-  const issueMutation = useIssueBook();
-  const [memberType, setMemberType] = useState<"student" | "teacher">("student");
+  const [mounted, setMounted] = useState(false);
+  const { books, members, issues, issueBook } = useLibraryStore();
+  
+  const [formData, setFormData] = useState({ bookId: "", memberId: "", issueDate: new Date().toISOString().split("T")[0], dueDate: "" });
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<IssueFormData>({
-    resolver: zodResolver(issueSchema),
-    defaultValues: {
-      issueDate: new Date().toISOString().split("T")[0],
-      returnDate: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
-      memberType: "student",
-    },
-  });
+  useEffect(() => {
+    setMounted(true);
+    // set default due date to 14 days from now
+    const due = new Date();
+    due.setDate(due.getDate() + 14);
+    setFormData(prev => ({ ...prev, dueDate: due.toISOString().split("T")[0] }));
+  }, []);
 
-  const activeIssues = issues.filter((i) => i.status !== "returned");
-  const filteredMembers = members.filter((m) => m.memberType === memberType);
+  if (!mounted) return null;
 
-  const columns: ColumnDef<BookIssue>[] = [
-    { accessorKey: "bookTitle", header: "Book" },
-    { accessorKey: "memberName", header: "Member" },
+  const handleIssue = () => {
+    if (!formData.bookId || !formData.memberId || !formData.dueDate) return;
+    
+    issueBook({
+      bookId: formData.bookId,
+      memberId: formData.memberId,
+      issueDate: new Date(formData.issueDate).toISOString(),
+      dueDate: new Date(formData.dueDate).toISOString()
+    });
+    
+    // reset form
+    setFormData(prev => ({ ...prev, bookId: "", memberId: "" }));
+  };
+
+  const columns: ColumnDef<LibraryIssue>[] = [
     {
-      accessorKey: "memberType",
-      header: "Type",
-      cell: ({ row }) => <span className="capitalize">{row.original.memberType}</span>,
+      accessorKey: "bookId",
+      header: "Book",
+      cell: ({ row }) => {
+        const book = books.find(b => b.id === row.original.bookId);
+        return <span className="font-medium text-white">{book?.title || "Unknown Book"}</span>;
+      }
     },
-    { accessorKey: "issueDate", header: "Issue Date" },
-    { accessorKey: "returnDate", header: "Return Date" },
+    {
+      accessorKey: "memberId",
+      header: "Member",
+      cell: ({ row }) => {
+        const mem = members.find(m => m.id === row.original.memberId);
+        return <span className="text-zinc-300">{mem?.name || "Unknown Member"}</span>;
+      }
+    },
+    {
+      accessorKey: "issueDate",
+      header: "Issue Date",
+      cell: ({ row }) => <span className="text-zinc-400">{formatDate(row.original.issueDate)}</span>
+    },
+    {
+      accessorKey: "dueDate",
+      header: "Due Date",
+      cell: ({ row }) => <span className="text-zinc-400">{formatDate(row.original.dueDate)}</span>
+    },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <Badge className={STATUS_COLORS[row.original.status]}>{row.original.status}</Badge>
-      ),
-    },
-  ];
-
-  const onSubmit = async (data: IssueFormData) => {
-    try {
-      await issueMutation.mutateAsync(data);
-      reset();
-    } catch {
-      toast.success("Book issued (demo mode)");
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const color = 
+          status === "issued" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+          status === "returned" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+          "bg-red-500/10 text-red-400 border-red-500/20";
+        return (
+          <Badge variant="outline" className={`capitalize ${color}`}>
+            {status}
+          </Badge>
+        );
+      }
     }
-  };
+  ];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Issue Books"
-        description="Issue books to students and teachers"
+        description="Issue books to library members."
         breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Issue Books" }]}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="dashboard-card lg:col-span-1">
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className="dashboard-card border-blue-500/20 md:col-span-1">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-white">
-              <BookMarked className="h-5 w-5 text-blue-400" />
-              New Issue
+            <CardTitle className="text-lg text-white flex items-center gap-2">
+              <BookMarked className="h-5 w-5 text-blue-400" /> Issue New Book
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Member Type</Label>
-                <Select
-                  value={memberType}
-                  onValueChange={(v) => {
-                    setMemberType(v as "student" | "teacher");
-                    setValue("memberType", v as "student" | "teacher");
-                    setValue("memberId", "");
-                  }}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="student">Student</SelectItem>
-                    <SelectItem value="teacher">Teacher</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Member</Label>
-                <Select onValueChange={(v) => setValue("memberId", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select member" /></SelectTrigger>
-                  <SelectContent>
-                    {filteredMembers.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>{m.name} — {m.classOrDept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.memberId && <p className="text-xs text-red-400">Member is required</p>}
-              </div>
-              <div className="space-y-2">
-                <Label>Book</Label>
-                <Select onValueChange={(v) => setValue("bookId", v)}>
-                  <SelectTrigger><SelectValue placeholder="Select book" /></SelectTrigger>
-                  <SelectContent>
-                    {books.filter((b) => b.availableCopies > 0).map((b) => (
-                      <SelectItem key={b.id} value={b.id}>
-                        {b.title} ({b.availableCopies} available)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.bookId && <p className="text-xs text-red-400">Book is required</p>}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="issueDate">Issue Date</Label>
-                  <Input id="issueDate" type="date" {...register("issueDate")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="returnDate">Return Date</Label>
-                  <Input id="returnDate" type="date" {...register("returnDate")} />
-                </div>
-              </div>
-              <Button type="submit" className="w-full" disabled={issueMutation.isPending}>
-                Issue Book
-              </Button>
-            </form>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-400">Select Member</label>
+              <select 
+                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                value={formData.memberId}
+                onChange={e => setFormData({...formData, memberId: e.target.value})}
+              >
+                <option value="">-- Choose Member --</option>
+                {members.filter(m => m.status === "active").map(m => (
+                  <option key={m.id} value={m.id}>{m.name} ({m.role})</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-400">Select Book</label>
+              <select 
+                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                value={formData.bookId}
+                onChange={e => setFormData({...formData, bookId: e.target.value})}
+              >
+                <option value="">-- Choose Book --</option>
+                {books.filter(b => b.availableCopies > 0).map(b => (
+                  <option key={b.id} value={b.id}>{b.title} (Available: {b.availableCopies})</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-400">Issue Date</label>
+              <Input 
+                type="date"
+                value={formData.issueDate}
+                onChange={e => setFormData({...formData, issueDate: e.target.value})}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-400">Due Date</label>
+              <Input 
+                type="date"
+                value={formData.dueDate}
+                onChange={e => setFormData({...formData, dueDate: e.target.value})}
+              />
+            </div>
+
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 mt-4" onClick={handleIssue}>
+              Issue Book
+            </Button>
           </CardContent>
         </Card>
 
-        <div className="lg:col-span-2">
-          <DataTable columns={columns} data={activeIssues} isLoading={isLoading} />
-        </div>
+        <Card className="dashboard-card border-white/5 md:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg text-white">Recent Issues</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DataTable columns={columns} data={issues.filter(i => i.status !== "returned").reverse()} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
