@@ -64,7 +64,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First name</Label>
+              <Label htmlFor="firstName" className="text-zinc-300">First name</Label>
               <AuthInput
                 id="firstName"
                 placeholder="John"
@@ -74,7 +74,7 @@ export default function RegisterPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last name</Label>
+              <Label htmlFor="lastName" className="text-zinc-300">Last name</Label>
               <AuthInput
                 id="lastName"
                 placeholder="Doe"
@@ -85,7 +85,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="email" className="text-zinc-300">Email address</Label>
             <AuthInput
               id="email"
               type="email"
@@ -97,7 +97,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone number</Label>
+            <Label htmlFor="phone" className="text-zinc-300">Phone number</Label>
             <AuthInput
               id="phone"
               placeholder="01XXXXXXXXX"
@@ -107,17 +107,17 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>I am a</Label>
+            <Label className="text-zinc-300">I am a</Label>
             <Select
               onValueChange={(v) => setValue("role", v as RegisterFormData["role"])}
               defaultValue="student"
             >
-              <SelectTrigger className="h-11 rounded-lg">
+              <SelectTrigger className="h-12 rounded-xl bg-zinc-900/50 border-white/10 text-white">
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-zinc-950 border-white/10 text-white">
                 {ROLES.map((role) => (
-                  <SelectItem key={role.value} value={role.value}>
+                  <SelectItem key={role.value} value={role.value} className="focus:bg-white/10 focus:text-white cursor-pointer">
                     {role.label}
                   </SelectItem>
                 ))}
@@ -126,7 +126,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-zinc-300">Password</Label>
             <AuthInput
               id="password"
               type="password"
@@ -138,7 +138,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Label htmlFor="confirmPassword" className="text-zinc-300">Confirm password</Label>
             <AuthInput
               id="confirmPassword"
               type="password"
@@ -149,7 +149,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <p className="text-xs leading-relaxed text-muted-foreground">
+          <p className="text-xs leading-relaxed text-zinc-500">
             By creating an account, you agree to our Terms of Service and Privacy Policy.
           </p>
 

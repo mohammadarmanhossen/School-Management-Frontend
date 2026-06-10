@@ -41,94 +41,35 @@ export function AuthLayout({
   children: React.ReactNode;
   variant?: AuthVariant;
 }) {
-  const content = PANEL_CONTENT[variant];
-
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Image panel */}
-      <div className="relative hidden overflow-hidden lg:block">
-        <Image
-          src={content.image}
-          alt=""
-          fill
-          priority
-          className="object-cover"
-          sizes="50vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
+    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black selection:bg-primary/30">
+      {/* Background Animated Elements */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute top-0 -translate-y-12 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-30 blur-[100px] bg-gradient-to-b from-primary via-indigo-500 to-transparent rounded-full pointer-events-none animate-pulse duration-10000" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[300px] opacity-20 blur-[120px] bg-gradient-to-t from-blue-600 to-transparent rounded-full pointer-events-none" />
 
-        <div className="relative flex h-full flex-col justify-between p-10 text-white">
-          <div>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to home
-            </Link>
-            <div className="mt-8 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md">
-                <School className="h-6 w-6" />
-              </div>
-              <span className="text-lg font-semibold tracking-tight">{APP_NAME}</span>
-            </div>
+      {/* Header / Logo */}
+      <div className="absolute top-8 left-8 sm:top-12 sm:left-12 z-20">
+        <Link href="/" className="group flex items-center gap-3 transition-opacity hover:opacity-80">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/10 shadow-lg group-hover:scale-105 transition-transform">
+            <School className="h-5 w-5 text-white" />
           </div>
+          <span className="text-xl font-bold tracking-tight text-white">{APP_NAME}</span>
+        </Link>
+      </div>
 
-          <div className="max-w-md space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold leading-tight tracking-tight xl:text-4xl">
-                {content.title}
-              </h1>
-              <p className="mt-3 text-base leading-relaxed text-white/75">
-                {content.subtitle}
-              </p>
-            </div>
-            <ul className="space-y-3">
-              {content.points.map((point) => (
-                <li key={point} className="flex items-center gap-3 text-sm text-white/90">
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <p className="text-xs text-white/50">
-            &copy; {new Date().getFullYear()} {APP_NAME}
-          </p>
+      {/* Centered Main Form Container */}
+      <div className="relative z-10 w-full max-w-[440px] px-6 mt-16 lg:mt-0">
+        <div className="animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-700">
+          {children}
         </div>
       </div>
 
-      {/* Form panel */}
-      <div className="flex flex-col bg-background">
-        <div className="flex items-center justify-between p-6 lg:hidden">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-            <ArrowLeft className="h-4 w-4" />
-            Home
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <School className="h-5 w-5" />
-            </div>
-            <span className="font-semibold">{APP_NAME}</span>
-          </div>
-        </div>
-
-        <div className="relative h-44 shrink-0 overflow-hidden lg:hidden">
-          <Image
-            src={content.image}
-            alt=""
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-black/40 to-black/20" />
-        </div>
-
-        <div className="flex flex-1 flex-col items-center justify-center px-6 py-8 sm:px-10">
-          <div className="w-full max-w-[420px]">{children}</div>
-        </div>
+      {/* Footer Element */}
+      <div className="absolute bottom-8 text-center w-full z-20">
+        <p className="text-xs text-white/40 tracking-wider">
+          &copy; {new Date().getFullYear()} {APP_NAME}. ALL RIGHTS RESERVED.
+        </p>
       </div>
     </div>
   );
@@ -148,16 +89,23 @@ export function AuthCard({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-8", className)}>
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">{title}</h2>
+    <div className={cn("space-y-8 p-8 sm:p-10 bg-[#0a0a0a]/80 backdrop-blur-3xl rounded-[2rem] border border-white/[0.08] shadow-[0_0_80px_-20px_rgba(0,0,0,1)] relative overflow-hidden", className)}>
+      {/* Card Inner Glow */}
+      <div className="absolute inset-x-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      
+      <div className="space-y-3 relative z-10 text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-white">{title}</h2>
         {description && (
-          <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+          <p className="text-sm leading-relaxed text-zinc-400">{description}</p>
         )}
       </div>
-      {children}
+      <div className="relative z-10 text-zinc-200">
+        {children}
+      </div>
       {footer && (
-        <p className="text-center text-sm text-muted-foreground">{footer}</p>
+        <div className="relative z-10 pt-4 border-t border-white/5 text-center text-sm text-zinc-400">
+          {footer}
+        </div>
       )}
     </div>
   );
@@ -165,7 +113,7 @@ export function AuthCard({
 
 export function AuthLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="font-medium text-primary hover:underline underline-offset-4">
+    <Link href={href} className="font-semibold text-primary hover:text-primary/80 hover:underline underline-offset-4 transition-colors">
       {children}
     </Link>
   );

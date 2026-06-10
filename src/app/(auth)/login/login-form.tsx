@@ -160,7 +160,7 @@ export default function LoginForm() {
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="email" className="text-zinc-300">Email address</Label>
             <AuthInput
               id="email"
               type="email"
@@ -173,7 +173,7 @@ export default function LoginForm() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-zinc-300">Password</Label>
               <AuthLink href="/forgot-password">Forgot password?</AuthLink>
             </div>
             <AuthInput
@@ -191,8 +191,9 @@ export default function LoginForm() {
               id="rememberMe"
               checked={rememberMe}
               onCheckedChange={(checked) => setValue("rememberMe", !!checked)}
+              className="border-white/20 data-[state=checked]:bg-primary"
             />
-            <Label htmlFor="rememberMe" className="cursor-pointer text-sm font-normal">
+            <Label htmlFor="rememberMe" className="cursor-pointer text-sm font-normal text-zinc-300">
               Keep me signed in
             </Label>
           </div>
@@ -209,8 +210,8 @@ export default function LoginForm() {
           </Button>
         </form>
 
-        <div className="rounded-xl border border-dashed bg-muted/40 p-4">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 mt-6 backdrop-blur-md">
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
             Quick demo access
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -219,10 +220,10 @@ export default function LoginForm() {
                 key={account.email}
                 type="button"
                 onClick={() => fillDemo(account.email, account.password)}
-                className="rounded-lg border bg-background px-3 py-2.5 text-left text-xs transition-colors hover:border-primary/50 hover:bg-primary/5"
+                className="rounded-lg border border-white/5 bg-white/5 px-3 py-2.5 text-left text-xs transition-colors hover:border-primary/50 hover:bg-primary/10"
               >
-                <span className="font-medium text-foreground">{account.role}</span>
-                <span className="mt-0.5 block truncate text-muted-foreground">{account.email}</span>
+                <span className="font-medium text-zinc-200">{account.role}</span>
+                <span className="mt-0.5 block truncate text-zinc-400">{account.email}</span>
               </button>
             ))}
           </div>

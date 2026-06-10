@@ -19,7 +19,12 @@ export function AuthInput({ icon, error, className, ...props }: AuthInputProps) 
           </div>
         )}
         <Input
-          className={cn(icon && "pl-10", error && "border-destructive focus-visible:ring-destructive/20", className)}
+          className={cn(
+            "h-12 bg-zinc-900/50 border-white/10 text-white placeholder:text-zinc-500 hover:bg-zinc-900 focus-visible:bg-zinc-900 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all duration-300 rounded-xl",
+            icon && "pl-11", 
+            error && "border-destructive focus-visible:ring-destructive/20", 
+            className
+          )}
           {...props}
         />
       </div>
