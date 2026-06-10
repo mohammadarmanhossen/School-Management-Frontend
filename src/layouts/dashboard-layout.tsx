@@ -4,6 +4,7 @@ import { useUIStore } from "@/store";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
+import { AiChatWidget } from "@/features/ai-chat";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { sidebarCollapsed } = useUIStore();
@@ -25,6 +26,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
         </div>
       </div>
+      <AiChatWidget />
     </div>
   );
 }
