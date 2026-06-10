@@ -6,7 +6,7 @@ import type { Notice } from "@/types";
 interface NoticeStore {
   notices: Notice[];
   addNotice: (data: NoticeFormData, authorName: string) => Notice;
-  updateNotice: (id: string, data: Partial<NoticeFormData>) => Notice | undefined;
+  updateNotice: (id: string, data: Partial<Notice>) => Notice | undefined;
   deleteNotice: (id: string) => void;
   getNoticeById: (id: string) => Notice | undefined;
 }

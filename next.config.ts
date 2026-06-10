@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts", "@tanstack/react-table"],
   },
+  devIndicators: false,
 };
 
 export default nextConfig;

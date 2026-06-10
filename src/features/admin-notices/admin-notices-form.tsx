@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { Save, Send, Paperclip, X, Tag as TagIcon, LayoutTemplate, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -104,7 +105,7 @@ export function AdminNoticesForm({ onSuccess }: { onSuccess?: () => void }) {
       title,
       shortSummary,
       content,
-      category: category as any,
+      category: category as NoticeFormData["category"],
       priority,
       targetAudience,
       tags,

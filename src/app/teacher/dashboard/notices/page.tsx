@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { 
   Search, Filter, Inbox, Star, Bookmark, AlertCircle, 
   Clock, CheckCircle2, ChevronRight, X, Download, 
-  Share2, Paperclip, MailOpen, Mail, Pin, Bell
+  Share2, Paperclip, MailOpen, Mail, Pin, Bell, FileX
 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";

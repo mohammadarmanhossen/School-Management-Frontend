@@ -2,6 +2,7 @@ import { LandingHeader } from "@/components/landing/landing-header";
 import {
   HeroSection,
   FeaturesSection,
+  WorkProcessSection,
   ModulesSection,
   PricingSection,
 } from "@/components/landing/landing-sections";
@@ -15,6 +16,7 @@ export default function HomePage() {
       <main className="flex-1">
         <HeroSection />
         <FeaturesSection />
+        <WorkProcessSection />
         <ModulesSection />
         <PricingSection />
         <ContactSection />

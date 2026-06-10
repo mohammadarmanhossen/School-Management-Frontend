@@ -84,6 +84,11 @@ const STATUS_CONFIG = {
     icon: <XCircle className="h-4 w-4" />,
     label: "Expired",
   },
+  archived: {
+    variant: "secondary" as const,
+    icon: <Trash2 className="h-4 w-4" />,
+    label: "Archived",
+  },
 };
 
 const ROLE_LABELS: Record<string, string> = {

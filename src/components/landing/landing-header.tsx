@@ -26,8 +26,8 @@ export function LandingHeader() {
   const dashboardHref = user ? getDefaultDashboard(user.role) : "/dashboard";
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="flex h-16 items-center justify-between rounded-full border border-white/20 bg-white/60 px-6 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/60">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <School className="h-5 w-5" />
@@ -62,10 +62,10 @@ export function LandingHeader() {
             </Button>
           ) : (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" className="rounded-full font-medium" asChild>
                 <Link href="/login">Sign In</Link>
               </Button>
-              <Button asChild>
+              <Button className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-md" asChild>
                 <Link href="/register">Get Started</Link>
               </Button>
             </>
@@ -81,31 +81,30 @@ export function LandingHeader() {
           <Menu className="h-5 w-5" />
         </Button>
       </div>
-
       {mobileOpen && (
-        <div className="border-t px-4 py-4 md:hidden">
+        <div className="absolute left-4 right-4 top-20 rounded-2xl border border-white/20 bg-white/95 p-4 shadow-2xl backdrop-blur-xl dark:bg-slate-900/95 md:hidden">
           <nav className="flex flex-col gap-3">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium"
+                className="rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20"
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
               </a>
             ))}
-            <div className="mt-2 flex flex-col gap-2 border-t pt-4">
+            <div className="mt-2 flex flex-col gap-2 border-t pt-4 px-2">
               {isAuthenticated ? (
-                <Button asChild>
+                <Button className="rounded-full" asChild>
                   <Link href={dashboardHref}>Dashboard</Link>
                 </Button>
               ) : (
                 <>
-                  <Button variant="outline" asChild>
+                  <Button variant="outline" className="rounded-full" asChild>
                     <Link href="/login">Sign In</Link>
                   </Button>
-                  <Button asChild>
+                  <Button className="rounded-full bg-blue-600 hover:bg-blue-700" asChild>
                     <Link href="/register">Get Started</Link>
                   </Button>
                 </>
