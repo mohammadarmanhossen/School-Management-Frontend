@@ -5,7 +5,6 @@ import {
   ModulesSection,
   PricingSection,
 } from "@/components/landing/landing-sections";
-import { StudentApplySection } from "@/components/landing/student-apply";
 import { ContactSection } from "@/components/landing/contact-section";
 import { CtaSection, LandingFooter } from "@/components/landing/landing-footer";
 
@@ -18,7 +17,6 @@ export default function HomePage() {
         <FeaturesSection />
         <ModulesSection />
         <PricingSection />
-        <StudentApplySection />
         <ContactSection />
         <CtaSection />
       </main>

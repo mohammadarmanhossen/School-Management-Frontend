@@ -443,4 +443,57 @@ export interface SchoolSettings {
   theme?: "light" | "dark" | "system";
 }
 
+// ─── Student Events & Activities Center ───────────────────────────────────────
 
+export interface EventSchedule {
+  time: string;
+  title: string;
+  description?: string;
+}
+
+export interface EventAttachment {
+  name: string;
+  type: "pdf" | "doc" | "image";
+  url: string;
+  size?: string;
+}
+
+export interface EventGallery {
+  id: string;
+  type: "image" | "video";
+  url: string;
+  thumbnail?: string;
+  caption?: string;
+}
+
+export type EventStatus = "upcoming" | "ongoing" | "completed" | "cancelled";
+export type EventCategory = "Academic" | "Science Fair" | "Sports" | "Cultural" | "Debate" | "Quiz" | "Workshop" | "Seminar" | "Club Activity" | "School Trip" | "Annual Function" | "Award Ceremony";
+
+export interface StudentActivityEvent {
+  id: string;
+  title: string;
+  description: string;
+  category: EventCategory;
+  date: string; // YYYY-MM-DD
+  endDate?: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  organizer: string;
+  coverImage: string;
+  status: EventStatus;
+  
+  // Registration
+  registrationDeadline: string; // YYYY-MM-DD
+  capacity: number;
+  registeredCount: number;
+  
+  // Details
+  dressCode?: string;
+  rules?: string[];
+  
+  // Relationships
+  schedule: EventSchedule[];
+  attachments: EventAttachment[];
+  gallery: EventGallery[];
+}
