@@ -1,290 +1,422 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useNoticeStore } from "@/store";
-import { toast } from "sonner";
+import { useState, useMemo } from "react";
+import { format } from "date-fns";
 import { 
-  Trash2, 
-  Edit2, 
-  X, 
-  Megaphone, 
-  Send, 
-  Clock, 
-  MessageSquare,
-  Sparkles
+  Search, Filter, Inbox, Star, Bookmark, AlertCircle, 
+  Clock, CheckCircle2, ChevronRight, X, Download, 
+  Share2, Paperclip, MailOpen, Mail, Pin, Bell
 } from "lucide-react";
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
+} from "@/components/ui/select";
+import { 
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription 
+} from "@/components/ui/sheet";
+import { useNoticeStore } from "@/store/notice-store";
+import type { Notice } from "@/types";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-export default function TeacherNoticePage() {
-  const notices = useNoticeStore((state) => state.notices);
-  const addNotice = useNoticeStore((state) => state.addNotice);
-  const updateNotice = useNoticeStore((state) => state.updateNotice);
-  const deleteNotice = useNoticeStore((state) => state.deleteNotice);
+const CATEGORIES = ["All", "Academic", "Examination", "Assignment", "Meeting", "Event", "Holiday", "Emergency", "Training", "Administration", "General Announcement"];
 
-  const [mounted, setMounted] = useState(false);
-  const [title, setTitle] = useState("");
-  const [message, setMessage] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
+type FilterTab = "inbox" | "unread" | "important" | "urgent" | "saved" | "pinned" | "expiring";
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export default function TeacherNoticeCenterPage() {
+  const { notices, updateNotice } = useNoticeStore();
+  const [activeTab, setActiveTab] = useState<FilterTab>("inbox");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  
+  const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const handleSubmit = () => {
-    if (!title.trim() || !message.trim()) {
-      toast.error("Please fill all fields");
-      return;
-    }
+  // Filter notices for Teacher view (published only)
+  const teacherNotices = notices.filter(n => ["published", "scheduled"].includes(n.status));
 
-    if (editingId) {
-      updateNotice(editingId, {
-        title,
-        content: message,
-      });
-      toast.success("Notice updated!");
-      setEditingId(null);
-    } else {
-      addNotice({
-        title,
-        content: message,
-        priority: "medium",
-        status: "published",
-        targetRoles: ["student"],
-        publishDate: new Date().toISOString().split("T")[0],
-      }, "Teacher");
-      toast.success("Notice published!");
-    }
+  const filteredNotices = useMemo(() => {
+    return teacherNotices.filter(n => {
+      // Search
+      const searchMatch = !searchQuery || 
+        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        n.author.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Category
+      const catMatch = categoryFilter === "All" || n.category === categoryFilter;
 
-    setTitle("");
-    setMessage("");
-  };
-
-  const handleEdit = (id: string, currentTitle: string, currentMessage: string) => {
-    setEditingId(id);
-    setTitle(currentTitle);
-    setMessage(currentMessage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this notice?")) {
-      deleteNotice(id);
-      toast.success("Notice deleted");
-      if (editingId === id) {
-        handleCancel();
+      // Tab Filters
+      let tabMatch = true;
+      if (activeTab === "unread") tabMatch = !n.isRead;
+      if (activeTab === "important") tabMatch = n.priority === "high" || n.priority === "urgent";
+      if (activeTab === "urgent") tabMatch = n.priority === "urgent";
+      if (activeTab === "saved") tabMatch = !!n.isSaved;
+      if (activeTab === "pinned") tabMatch = !!n.isPinned;
+      if (activeTab === "expiring") {
+        if (!n.expiryDate) tabMatch = false;
+        else {
+          const daysLeft = (new Date(n.expiryDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24);
+          tabMatch = daysLeft > 0 && daysLeft <= 7;
+        }
       }
+
+      return searchMatch && catMatch && tabMatch;
+    }).sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+  }, [teacherNotices, searchQuery, categoryFilter, activeTab]);
+
+  // Actions
+  const toggleRead = (e: React.MouseEvent, id: string, currentState: boolean) => {
+    e.stopPropagation();
+    updateNotice(id, { isRead: !currentState });
+    toast.success(`Marked as ${!currentState ? 'Read' : 'Unread'}`);
+  };
+
+  const toggleSave = (e: React.MouseEvent, id: string, currentState: boolean) => {
+    e.stopPropagation();
+    updateNotice(id, { isSaved: !currentState });
+    toast.success(!currentState ? "Notice saved for later" : "Notice removed from saved");
+  };
+
+  const togglePin = (e: React.MouseEvent, id: string, currentState: boolean) => {
+    e.stopPropagation();
+    updateNotice(id, { isPinned: !currentState });
+    toast.success(!currentState ? "Notice pinned" : "Notice unpinned");
+  };
+
+  const openNotice = (notice: Notice) => {
+    setSelectedNotice(notice);
+    setIsDrawerOpen(true);
+    if (!notice.isRead) {
+      updateNotice(notice.id, { isRead: true });
     }
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setTitle("");
-    setMessage("");
+  // Stats
+  const stats = {
+    total: teacherNotices.length,
+    unread: teacherNotices.filter(n => !n.isRead).length,
+    important: teacherNotices.filter(n => n.priority === "high" || n.priority === "urgent").length,
+    urgent: teacherNotices.filter(n => n.priority === "urgent").length,
   };
 
-  if (!mounted) return null;
-
-  const displayNotices = [...notices].reverse();
+  const priorityColors = {
+    low: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    medium: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    high: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    urgent: "bg-red-500/10 text-red-400 border-red-500/20 animate-pulse"
+  };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-      {/* HEADER */}
-      <div className="flex flex-col gap-2 relative">
-        <div className="absolute -top-4 -left-4 w-24 h-24 bg-indigo-500/10 dark:bg-indigo-500/20 blur-2xl rounded-full -z-10" />
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 shadow-sm">
-            <Megaphone className="h-6 w-6" />
-          </div>
+    <div className="space-y-6 pb-10 flex flex-col h-[calc(100vh-80px)]">
+      <PageHeader 
+        title="Notice Center" 
+        description="Your central hub for all school communications, events, and important announcements." 
+        breadcrumbs={[
+          { label: "Teacher Dashboard", href: "/teacher/dashboard" },
+          { label: "Notice Center" }
+        ]}
+      />
+
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 shrink-0">
+        <Card className="dashboard-card border-white/[0.08] p-4 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white bg-clip-text">
-              Class Announcements
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
-              Publish and manage important notices for your students instantly.
-            </p>
+            <div className="text-sm text-zinc-400 mb-1">Total Notices</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
           </div>
-        </div>
+          <Inbox className="h-8 w-8 text-blue-400 opacity-20" />
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex items-center justify-between">
+          <div>
+            <div className="text-sm text-zinc-400 mb-1">Unread</div>
+            <div className="text-2xl font-bold text-blue-400">{stats.unread}</div>
+          </div>
+          <Mail className="h-8 w-8 text-blue-400 opacity-20" />
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex items-center justify-between">
+          <div>
+            <div className="text-sm text-zinc-400 mb-1">Important</div>
+            <div className="text-2xl font-bold text-amber-400">{stats.important}</div>
+          </div>
+          <Star className="h-8 w-8 text-amber-400 opacity-20" />
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex items-center justify-between bg-red-500/5 border-red-500/20">
+          <div>
+            <div className="text-sm text-red-400 mb-1">Urgent</div>
+            <div className="text-2xl font-bold text-red-500">{stats.urgent}</div>
+          </div>
+          <AlertCircle className="h-8 w-8 text-red-500 opacity-20" />
+        </Card>
       </div>
 
-      <div className="grid lg:grid-cols-12 gap-8 items-start">
-        {/* LEFT COLUMN: CREATE / EDIT FORM */}
-        <div className="lg:col-span-4 sticky top-6">
-          <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden transition-all duration-300">
-            {/* Form Header */}
-            <div className={`px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between transition-colors ${editingId ? 'bg-amber-50/50 dark:bg-amber-500/5' : 'bg-slate-50/50 dark:bg-slate-900/50'}`}>
-              <div className="flex items-center gap-2">
-                {editingId ? (
-                  <Edit2 className="h-4 w-4 text-amber-500" />
-                ) : (
-                  <Sparkles className="h-4 w-4 text-indigo-500" />
-                )}
-                <h2 className="font-semibold text-slate-800 dark:text-slate-200">
-                  {editingId ? "Edit Notice" : "New Notice"}
-                </h2>
-              </div>
-              {editingId && (
-                <Button variant="ghost" size="icon" onClick={handleCancel} className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 dark:hover:bg-slate-800 rounded-full transition-colors">
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-
-            {/* Form Body */}
-            <div className="p-5 space-y-4">
-              <div className="space-y-1.5 group">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors">
-                  Notice Title
-                </label>
-                <Input
-                  placeholder="e.g., Upcoming Math Test"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="bg-slate-50/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500/30 transition-all rounded-xl h-11"
-                />
-              </div>
-
-              <div className="space-y-1.5 group">
-                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors">
-                  Message Content
-                </label>
-                <Textarea
-                  placeholder="Write the detailed announcement here..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="min-h-[140px] resize-y bg-slate-50/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500/30 transition-all rounded-xl leading-relaxed"
-                />
-              </div>
-
-              <div className="pt-2">
-                <Button 
-                  onClick={handleSubmit} 
-                  className={`w-full h-11 rounded-xl font-medium shadow-md transition-all ${
-                    editingId 
-                      ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20 text-white" 
-                      : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20 text-white"
-                  }`}
-                >
-                  {editingId ? (
-                    <>
-                      <Edit2 className="h-4 w-4 mr-2" />
-                      Save Changes
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Publish Notice
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
+      {/* Gmail Style Layout */}
+      <div className="flex flex-1 gap-6 min-h-0 overflow-hidden">
+        
+        {/* Sidebar Navigation */}
+        <div className="w-[240px] shrink-0 hidden lg:flex flex-col gap-2">
+          <Button variant={activeTab === "inbox" ? "secondary" : "ghost"} className="justify-start" onClick={() => setActiveTab("inbox")}>
+            <Inbox className="w-4 h-4 mr-2" /> All Inbox
+            <span className="ml-auto bg-blue-500/20 text-blue-400 text-xs py-0.5 px-2 rounded-full">{stats.total}</span>
+          </Button>
+          <Button variant={activeTab === "unread" ? "secondary" : "ghost"} className="justify-start" onClick={() => setActiveTab("unread")}>
+            <Mail className="w-4 h-4 mr-2" /> Unread
+            {stats.unread > 0 && <span className="ml-auto bg-blue-500 text-white text-xs py-0.5 px-2 rounded-full">{stats.unread}</span>}
+          </Button>
+          <Button variant={activeTab === "important" ? "secondary" : "ghost"} className="justify-start text-amber-400/90 hover:text-amber-400 hover:bg-amber-500/10" onClick={() => setActiveTab("important")}>
+            <Star className="w-4 h-4 mr-2" /> Important
+          </Button>
+          <Button variant={activeTab === "urgent" ? "secondary" : "ghost"} className="justify-start text-red-400/90 hover:text-red-400 hover:bg-red-500/10" onClick={() => setActiveTab("urgent")}>
+            <AlertCircle className="w-4 h-4 mr-2" /> Urgent
+          </Button>
+          <Separator className="my-2 bg-white/[0.05]" />
+          <Button variant={activeTab === "pinned" ? "secondary" : "ghost"} className="justify-start" onClick={() => setActiveTab("pinned")}>
+            <Pin className="w-4 h-4 mr-2" /> Pinned
+          </Button>
+          <Button variant={activeTab === "saved" ? "secondary" : "ghost"} className="justify-start" onClick={() => setActiveTab("saved")}>
+            <Bookmark className="w-4 h-4 mr-2" /> Saved for Later
+          </Button>
+          <Button variant={activeTab === "expiring" ? "secondary" : "ghost"} className="justify-start" onClick={() => setActiveTab("expiring")}>
+            <Clock className="w-4 h-4 mr-2" /> Expiring Soon
+          </Button>
         </div>
 
-        {/* RIGHT COLUMN: NOTICE LIST */}
-        <div className="lg:col-span-8 space-y-4">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-slate-400" />
-              Published Notices
-            </h3>
-            <Badge variant="secondary" className="rounded-full px-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium">
-              {displayNotices.length} Total
-            </Badge>
-          </div>
-          
-          {displayNotices.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 ring-8 ring-slate-50 dark:ring-slate-900/50">
-                <Megaphone className="h-6 w-6 text-slate-400" />
-              </div>
-              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">No notices yet</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
-                Create your first announcement using the form to notify your students.
-              </p>
+        {/* Main List Area */}
+        <Card className="flex-1 dashboard-card border-white/[0.08] flex flex-col min-w-0">
+          {/* Toolbar */}
+          <div className="p-4 border-b border-white/[0.08] flex flex-col sm:flex-row gap-4 items-center justify-between bg-white/[0.01]">
+            <div className="relative w-full sm:w-[350px]">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <Input 
+                placeholder="Search notices..." 
+                className="pl-9 bg-white/[0.02] border-white/[0.08]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {displayNotices.map((n) => (
-                <div 
-                  key={n.id} 
-                  className={`group relative p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/30 dark:hover:shadow-none hover:-translate-y-0.5 ${
-                    editingId === n.id 
-                      ? 'border-amber-400 dark:border-amber-500/50 ring-4 ring-amber-500/10 shadow-md' 
-                      : 'border-slate-200 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-500/30'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                    {/* Left Icon Area (Hidden on very small screens) */}
-                    <div className="hidden sm:flex shrink-0">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-colors ${
-                        editingId === n.id 
-                          ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' 
-                          : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20'
-                      }`}>
-                        <Megaphone className="h-5 w-5" />
-                      </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full sm:w-[160px] bg-white/[0.02] border-white/[0.08]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              
+              {/* Mobile Tab Select */}
+              <div className="lg:hidden">
+                <Select value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
+                  <SelectTrigger className="w-full sm:w-[140px] bg-white/[0.02] border-white/[0.08]">
+                    <SelectValue placeholder="Filter" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="inbox">All Inbox</SelectItem>
+                    <SelectItem value="unread">Unread</SelectItem>
+                    <SelectItem value="important">Important</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                    <SelectItem value="pinned">Pinned</SelectItem>
+                    <SelectItem value="saved">Saved</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* List */}
+          <ScrollArea className="flex-1">
+            <div className="divide-y divide-white/[0.04]">
+              {filteredNotices.length > 0 ? (
+                filteredNotices.map((notice) => (
+                  <div 
+                    key={notice.id} 
+                    onClick={() => openNotice(notice)}
+                    className={cn(
+                      "flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-white/[0.03]",
+                      !notice.isRead ? "bg-blue-500/[0.02]" : "opacity-80"
+                    )}
+                  >
+                    {/* Actions Left */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button 
+                        onClick={(e) => togglePin(e, notice.id, !!notice.isPinned)} 
+                        className={cn("p-1.5 rounded hover:bg-white/[0.1] transition-colors", notice.isPinned ? "text-blue-400" : "text-zinc-500 hover:text-blue-400")}
+                      >
+                        <Pin className={cn("w-4 h-4", notice.isPinned && "fill-current")} />
+                      </button>
+                      <button 
+                        onClick={(e) => toggleSave(e, notice.id, !!notice.isSaved)} 
+                        className={cn("p-1.5 rounded hover:bg-white/[0.1] transition-colors", notice.isSaved ? "text-amber-400" : "text-zinc-500 hover:text-amber-400")}
+                      >
+                        <Bookmark className={cn("w-4 h-4", notice.isSaved && "fill-current")} />
+                      </button>
                     </div>
 
-                    {/* Content Area */}
-                    <div className="flex-1 min-w-0 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div>
-                          <h3 className="font-bold text-lg text-slate-900 dark:text-white leading-tight mb-1 truncate pr-4">
-                            {n.title}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                            <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                              <Clock className="h-3 w-3" />
-                              {new Date(n.publishDate).toLocaleDateString(undefined, {
-                                month: 'short', day: 'numeric', year: 'numeric'
-                              })}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              By <span className="text-slate-700 dark:text-slate-300">{n.author}</span>
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 shrink-0">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleEdit(n.id, n.title, n.content)}
-                            className="h-8 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 dark:bg-slate-800 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-400 transition-colors"
-                          >
-                            <Edit2 className="h-3.5 w-3.5 sm:mr-1.5" />
-                            <span className="hidden sm:inline">Edit</span>
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDelete(n.id)}
-                            className="h-8 w-8 sm:w-auto sm:px-3 p-0"
-                          >
-                            <Trash2 className="h-3.5 w-3.5 sm:mr-1.5" />
-                            <span className="hidden sm:inline">Delete</span>
-                          </Button>
-                        </div>
+                    {/* Core Content */}
+                    <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
+                      <div className="flex items-center gap-2 shrink-0 md:w-[160px]">
+                        <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", priorityColors[notice.priority])}>
+                          {notice.priority.toUpperCase()}
+                        </Badge>
+                        <span className={cn("text-sm truncate", !notice.isRead && "font-semibold")}>
+                          {notice.author}
+                        </span>
                       </div>
                       
-                      <div className="relative">
-                        <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                          {n.content}
-                        </p>
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        <span className={cn("text-sm truncate", !notice.isRead ? "font-semibold text-white" : "text-zinc-300")}>
+                          {notice.title}
+                        </span>
+                        {notice.shortSummary && (
+                          <span className="text-sm text-zinc-500 truncate hidden lg:inline-block">
+                            - {notice.shortSummary}
+                          </span>
+                        )}
                       </div>
                     </div>
+
+                    {/* Metadata Right */}
+                    <div className="flex items-center gap-4 shrink-0 text-zinc-500 text-xs">
+                      {notice.attachments && notice.attachments.length > 0 && (
+                        <Paperclip className="w-4 h-4" />
+                      )}
+                      <span className={cn(!notice.isRead && "font-semibold text-blue-400")}>
+                        {format(new Date(notice.publishDate), "MMM d")}
+                      </span>
+                      <button 
+                        onClick={(e) => toggleRead(e, notice.id, !!notice.isRead)} 
+                        className="p-1.5 rounded hover:bg-white/[0.1] transition-colors hidden sm:block"
+                        title={notice.isRead ? "Mark as unread" : "Mark as read"}
+                      >
+                        {notice.isRead ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4 text-blue-400" />}
+                      </button>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="py-20 text-center flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-full bg-white/[0.02] flex items-center justify-center mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-zinc-500" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-1">You're all caught up!</h3>
+                  <p className="text-zinc-500">No notices found matching your current filters.</p>
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+          </ScrollArea>
+        </Card>
       </div>
+
+      {/* Notice Detail Drawer */}
+      <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <SheetContent className="w-full sm:max-w-2xl bg-[#0a0a0a] border-white/[0.08] p-0 flex flex-col">
+          {selectedNotice && (
+            <>
+              {/* Drawer Header Actions */}
+              <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-white/[0.01]">
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => updateNotice(selectedNotice.id, { isSaved: !selectedNotice.isSaved })}>
+                    <Bookmark className={cn("w-5 h-5", selectedNotice.isSaved ? "text-amber-400 fill-current" : "text-zinc-400")} />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => updateNotice(selectedNotice.id, { isPinned: !selectedNotice.isPinned })}>
+                    <Pin className={cn("w-5 h-5", selectedNotice.isPinned ? "text-blue-400 fill-current" : "text-zinc-400")} />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => {
+                    updateNotice(selectedNotice.id, { isRead: false });
+                    setIsDrawerOpen(false);
+                    toast.success("Marked as unread");
+                  }}>
+                    <Mail className="w-5 h-5 text-zinc-400" />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="bg-white/[0.02] border-white/[0.08]">
+                    <Share2 className="w-4 h-4 mr-2" /> Share
+                  </Button>
+                </div>
+              </div>
+
+              {/* Drawer Content */}
+              <ScrollArea className="flex-1 p-6">
+                <div className="space-y-6">
+                  {/* Meta */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <Badge variant="outline" className={cn(priorityColors[selectedNotice.priority])}>
+                        {selectedNotice.priority.toUpperCase()} PRIORITY
+                      </Badge>
+                      <span className="text-sm text-zinc-400">
+                        {format(new Date(selectedNotice.publishDate), "MMM d, yyyy 'at' h:mm a")}
+                      </span>
+                    </div>
+                    <h2 className="text-2xl font-bold mb-2">{selectedNotice.title}</h2>
+                    <div className="flex items-center gap-2 text-sm text-zinc-400">
+                      <span className="font-medium text-white">{selectedNotice.author}</span>
+                      <span>to</span>
+                      <span className="bg-white/[0.05] px-2 py-0.5 rounded">{selectedNotice.targetAudience?.join(", ") || "All"}</span>
+                    </div>
+                    {selectedNotice.tags && selectedNotice.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {selectedNotice.tags.map(t => (
+                          <Badge key={t} variant="secondary" className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20">{t}</Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator className="bg-white/[0.08]" />
+
+                  {/* Body */}
+                  <div className="prose prose-invert max-w-none text-zinc-300">
+                    {selectedNotice.content.split('\n').map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
+                  </div>
+
+                  {/* Attachments */}
+                  {selectedNotice.attachments && selectedNotice.attachments.length > 0 && (
+                    <div className="mt-8 pt-6 border-t border-white/[0.08]">
+                      <h4 className="text-sm font-medium mb-4 flex items-center"><Paperclip className="w-4 h-4 mr-2" /> {selectedNotice.attachments.length} Attachments</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {selectedNotice.attachments.map((att, i) => (
+                          <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-white/[0.08] bg-white/[0.02] group hover:bg-white/[0.04] transition-colors">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              <div className="w-10 h-10 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                                <FileX className="w-5 h-5" /> {/* placeholder icon */}
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-medium truncate">{att}</span>
+                                <span className="text-xs text-zinc-500">Document</span>
+                              </div>
+                            </div>
+                            <Button variant="ghost" size="icon" className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Download className="w-4 h-4 text-zinc-400 hover:text-white" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedNotice.expiryDate && (
+                    <div className="mt-8 p-4 rounded-lg bg-red-500/5 border border-red-500/10 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                      <div>
+                        <h5 className="text-sm font-medium text-red-400">Action Required</h5>
+                        <p className="text-sm text-red-400/80">This notice will expire on {format(new Date(selectedNotice.expiryDate), "MMMM d, yyyy")}. Please ensure all necessary actions are taken before this date.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

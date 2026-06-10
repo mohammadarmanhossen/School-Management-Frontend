@@ -37,11 +37,12 @@ import { useAuthStore } from "@/store";
 const QUICK_LINKS = [
   { title: "Profile", href: "/teacher/dashboard/profile", icon: User, desc: "Manage your profile" },
   { title: "My Classes", href: "/teacher/dashboard/classes", icon: BookOpen, desc: "View your classes" },
-  { title: "Routine", href: "/teacher/dashboard/timetable", icon: Calendar, desc: "Your daily schedule" },
+  { title: "Routine", href: "/teacher/dashboard/routine", icon: Calendar, desc: "Your daily schedule" },
   { title: "Attendance", href: "/teacher/dashboard/attendance", icon: ClipboardCheck, desc: "Mark attendance" },
   { title: "Homework", href: "/teacher/dashboard/homework", icon: PenLine, desc: "Manage assignments" },
   { title: "Lesson Plan", href: "/teacher/dashboard/lesson-plan", icon: FileText, desc: "Plan your syllabus" },
-  { title: "Exams & Results", href: "/teacher/dashboard/results", icon: Award, desc: "View results" },
+  { title: "Manage Exams", href: "/teacher/dashboard/exam", icon: FileText, desc: "Create exams" },
+  { title: "Exam Results", href: "/teacher/dashboard/results", icon: Award, desc: "Manage student results" },
   { title: "Students", href: "/teacher/dashboard/students", icon: Users, desc: "Student directory" },
   { title: "Study Materials", href: "/teacher/dashboard/materials", icon: Folder, desc: "Upload resources" },
   { title: "Messages", href: "/teacher/dashboard/messages", icon: MessageSquare, desc: "Inbox" },
@@ -146,7 +147,7 @@ export default function TeacherDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Today&apos;s Schedule</CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/teacher/dashboard/timetable">View full</Link>
+              <Link href="/teacher/dashboard/routine">View full</Link>
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">

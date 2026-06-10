@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,42 +11,86 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockStudents } from "@/lib/mock-data";
+import { mockClasses, mockSections } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
+import { useStudentsStorage } from "@/hooks/use-students-storage";
 
 export default function EditStudentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const student = mockStudents.find((s) => s.id === id);
-  if (!student) notFound();
+  const { getStudentById, updateStudent, isLoaded } = useStudentsStorage();
 
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm<StudentFormData>({
+  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<StudentFormData>({
     resolver: zodResolver(studentSchema),
-    defaultValues: {
-      studentId: student.studentId,
-      rollNumber: student.rollNumber,
-      fullName: student.fullName,
-      gender: student.gender,
-      dateOfBirth: student.dateOfBirth,
-      bloodGroup: student.bloodGroup,
-      email: student.email,
-      phone: student.phone,
-      address: student.address,
-      admissionDate: student.admissionDate,
-      classId: student.classId,
-      sectionId: student.sectionId,
-      parentName: student.parentName,
-      parentPhone: student.parentPhone,
-      parentEmail: student.parentEmail,
-      status: student.status,
-    },
   });
 
-  const onSubmit = async () => {
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success("Student updated successfully");
-    router.push(`/dashboard/students/${id}`);
+  const student = getStudentById(id);
+
+  useEffect(() => {
+    if (student) {
+      reset({
+        studentId: student.studentId,
+        rollNumber: student.rollNumber,
+        fullName: student.fullName,
+        gender: student.gender as "male" | "female" | "other",
+        dateOfBirth: student.dateOfBirth,
+        bloodGroup: student.bloodGroup,
+        email: student.email,
+        phone: student.phone,
+        address: student.address,
+        admissionDate: student.admissionDate,
+        classId: student.classId,
+        sectionId: student.sectionId,
+        parentName: student.parentName,
+        parentPhone: student.parentPhone,
+        parentEmail: student.parentEmail,
+        status: student.status as any,
+      });
+    }
+  }, [student, reset]);
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!student) notFound();
+
+  const onSubmit = async (data: StudentFormData) => {
+    try {
+      await new Promise((r) => setTimeout(r, 800));
+      const classObj = mockClasses.find((c) => c.id === data.classId);
+      const sectionObj = mockSections.find((s) => s.id === data.sectionId);
+      
+      updateStudent(id, {
+        studentId: data.studentId,
+        rollNumber: data.rollNumber,
+        fullName: data.fullName,
+        gender: data.gender,
+        dateOfBirth: data.dateOfBirth,
+        bloodGroup: data.bloodGroup,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        admissionDate: data.admissionDate,
+        classId: data.classId,
+        className: classObj?.name || student?.className,
+        sectionId: data.sectionId,
+        sectionName: sectionObj?.name || student?.sectionName,
+        parentName: data.parentName,
+        parentPhone: data.parentPhone,
+        parentEmail: data.parentEmail,
+        status: data.status,
+      });
+      toast.success("Student updated successfully");
+      router.push(`/dashboard/students/${id}`);
+    } catch (error) {
+      toast.error("Failed to update student");
+    }
   };
 
   return (
@@ -83,5 +127,3 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
     </div>
   );
 }
-
-

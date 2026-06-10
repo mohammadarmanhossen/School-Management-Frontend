@@ -5,6 +5,7 @@ import type { ExamResult } from "@/types";
 interface ResultState {
   results: ExamResult[];
   addResult: (data: Omit<ExamResult, "id" | "gpa" | "grade"> & { gpa?: number, grade?: string }) => void;
+  bulkAddResults: (dataList: Array<Omit<ExamResult, "id" | "gpa" | "grade"> & { gpa?: number, grade?: string }>) => void;
   updateResult: (id: string, data: Partial<ExamResult>) => void;
   deleteResult: (id: string) => void;
   getResultById: (id: string) => ExamResult | undefined;
@@ -34,6 +35,23 @@ export const useResultStore = create<ResultState>()(
           gpa: data.gpa ?? gpa,
         };
         set((state) => ({ results: [...state.results, newResult] }));
+      },
+      bulkAddResults: (dataList) => {
+        const newResults = dataList.map((data, index) => {
+          const { grade, gpa } = calculateGradeAndGPA(data.marksObtained, data.totalMarks);
+          return {
+            ...data,
+            id: crypto.randomUUID?.() || `res-${Date.now()}-${index}`,
+            grade: data.grade || grade,
+            gpa: data.gpa ?? gpa,
+          };
+        });
+        set((state) => {
+          // simple dedup by studentId + examName
+          const existingMap = new Map(state.results.map(r => [`${r.studentId}-${r.examName}`, r]));
+          newResults.forEach(r => existingMap.set(`${r.studentId}-${r.examName}`, r as ExamResult));
+          return { results: Array.from(existingMap.values()) };
+        });
       },
       updateResult: (id, data) =>
         set((state) => ({

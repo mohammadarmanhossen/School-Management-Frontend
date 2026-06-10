@@ -11,4 +11,5 @@ export { useClassStore } from "./class-store";
 export { useResultStore } from "./result-store";
 export { useTransportStore } from "./transport-store";
 export { useNoticeStore } from "./notice-store";
+export { useTimetableStore } from "./timetable-store";
 

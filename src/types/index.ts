@@ -165,16 +165,21 @@ export interface Subject {
   className?: string;
 }
 
-export type AttendanceStatus = "present" | "absent" | "late" | "leave";
+export type AttendanceStatus = "present" | "absent" | "late" | "leave" | "half_day" | "excused";
 
 export interface AttendanceRecord {
   id: string;
   studentId: string;
   studentName: string;
+  photo?: string;
+  rollNumber: string;
   classId: string;
   className: string;
+  sectionName?: string;
   date: string;
   status: AttendanceStatus;
+  checkInTime?: string;
+  checkOutTime?: string;
   remarks?: string;
 }
 
@@ -245,14 +250,26 @@ export interface Fee {
 export interface Notice {
   id: string;
   title: string;
+  shortSummary?: string;
   content: string;
+  category: "Student" | "Teacher" | "Parent" | "Academic" | "Exam" | "Assignment" | "Meeting" | "Event" | "Emergency" | "Holiday" | "General" | "Fee" | "Library" | "Transport" | "Training" | "Administration";
   author: string;
-  targetRoles: UserRole[];
+  targetAudience: string[]; // e.g., ["All Students", "Specific Class", "Specific Section", "All Teachers", "Specific Teachers", "All Parents", "Library Staff", "Transport Staff", "All Users"]
+  targetRoles: UserRole[]; // keeping this for backward compatibility
   attachments?: string[];
+  tags?: string[];
   publishDate: string;
   expiryDate?: string;
-  status: "draft" | "scheduled" | "published" | "expired";
+  status: "draft" | "scheduled" | "published" | "expired" | "archived";
   priority: "low" | "medium" | "high" | "urgent";
+  isPinned?: boolean;
+  isFeatured?: boolean;
+  isSaved?: boolean; // Gmail-style save for later
+  isRead?: boolean;  // Gmail-style read status
+  views?: number;
+  readPercentage?: number;
+  readCount?: number;
+  unreadCount?: number;
 }
 
 export interface Notification {
@@ -398,9 +415,14 @@ export interface TimetableEntry {
   startTime: string;
   endTime: string;
   subjectName: string;
+  subjectCode?: string;
   teacherName: string;
+  teacherId?: string;
   className: string;
+  sectionName?: string;
   room?: string;
+  type?: "Lecture" | "Lab" | "Practical" | "Break";
+  color?: string;
 }
 
 export interface SchoolSettings {
@@ -413,6 +435,12 @@ export interface SchoolSettings {
   academicYear: string;
   timezone: string;
   language: "en" | "bn";
+  principalName?: string;
+  establishedYear?: string;
+  schoolCode?: string;
+  currency?: string;
+  dateFormat?: string;
+  theme?: "light" | "dark" | "system";
 }
 
 

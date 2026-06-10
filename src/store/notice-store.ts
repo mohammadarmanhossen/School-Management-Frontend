@@ -20,13 +20,23 @@ export const useNoticeStore = create<NoticeStore>()(
         const newNotice: Notice = {
           id: crypto.randomUUID?.() || `notice-${Date.now()}`,
           title: data.title,
+          shortSummary: data.shortSummary,
           content: data.content,
+          category: data.category || "General",
           author: authorName,
-          targetRoles: data.targetRoles,
+          targetAudience: data.targetAudience || [],
+          targetRoles: data.targetRoles || [],
+          tags: data.tags || [],
           publishDate: data.publishDate,
           expiryDate: data.expiryDate,
           priority: data.priority,
           status: data.status,
+          readCount: 0,
+          unreadCount: 0,
+          views: 0,
+          readPercentage: 0,
+          isPinned: data.isPinned || false,
+          isFeatured: data.isFeatured || false,
         };
         set((state) => ({ notices: [...state.notices, newNotice] }));
         return newNotice;

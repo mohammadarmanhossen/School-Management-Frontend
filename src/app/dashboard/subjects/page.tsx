@@ -1,11 +1,14 @@
 "use client";
 
+import { useState, useMemo } from "react";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
+import { SearchInput } from "@/components/shared/search-input";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useSubjectsStorage } from "@/hooks/use-subjects-storage";
@@ -14,7 +17,14 @@ import { toast } from "sonner";
 
 export default function SubjectsPage() {
   const router = useRouter();
+  const [search, setSearch] = useState("");
   const { subjects, isLoaded, deleteSubject } = useSubjectsStorage();
+
+  const filtered = useMemo(() =>
+    subjects.filter((s) =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.code.toLowerCase().includes(search.toLowerCase())
+    ), [subjects, search]);
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this subject?")) {
@@ -69,7 +79,8 @@ export default function SubjectsPage() {
             </Link>
           </Button>
         } />
-      <DataTable columns={columns} data={subjects} />
+      <SearchInput value={search} onChange={setSearch} placeholder="Search subjects..." className="sm:max-w-sm" />
+      <DataTable columns={columns} data={filtered} />
     </div>
   );
 }

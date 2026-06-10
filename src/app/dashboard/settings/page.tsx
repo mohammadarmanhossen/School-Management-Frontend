@@ -263,9 +263,12 @@ function SettingsContent() {
               </CardHeader>
               <CardContent className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2"><Label className="text-zinc-400">School Name</Label><Input defaultValue="Dhaka Model School" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
+                <div className="space-y-2"><Label className="text-zinc-400">School Code</Label><Input defaultValue="DMS-001" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
+                <div className="space-y-2"><Label className="text-zinc-400">Principal Name</Label><Input defaultValue="Dr. Ahsan Habib" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
+                <div className="space-y-2"><Label className="text-zinc-400">Established Year</Label><Input defaultValue="1995" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
                 <div className="space-y-2"><Label className="text-zinc-400">Email</Label><Input defaultValue="info@school.edu.bd" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
                 <div className="space-y-2"><Label className="text-zinc-400">Phone</Label><Input defaultValue="+880 1234-567890" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
-                <div className="space-y-2"><Label className="text-zinc-400">Academic Year</Label><Input defaultValue="2024-2025" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
+                <div className="space-y-2 sm:col-span-2"><Label className="text-zinc-400">Academic Year</Label><Input defaultValue="2024-2025" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
                 <div className="space-y-2 sm:col-span-2"><Label className="text-zinc-400">Address</Label><Input defaultValue="123 Education Road, Dhanmondi, Dhaka" className="border-white/[0.08] bg-white/[0.04] text-zinc-200" /></div>
                 <Button onClick={() => toast.success("School settings saved")} className="sm:col-span-2 w-fit bg-blue-600 hover:bg-blue-700">Save Changes</Button>
               </CardContent>

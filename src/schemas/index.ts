@@ -110,14 +110,21 @@ export const examSchema = z.object({
 
 export const noticeSchema = z.object({
   title: z.string().min(3, "Title is required"),
+  shortSummary: z.string().optional(),
   content: z.string().min(10, "Content is required"),
+  category: z.enum(["Student", "Teacher", "Parent", "Academic", "Exam", "Assignment", "Meeting", "Event", "Emergency", "Holiday", "General", "Fee", "Library", "Transport", "Training", "Administration"]).default("General"),
+  targetAudience: z.array(z.string()).min(1, "Select at least one target audience"),
   targetRoles: z
     .array(z.enum(["school_admin", "teacher", "student", "parent", "librarian"]))
-    .min(1, "Select at least one target audience"),
+    .optional(),
+  tags: z.array(z.string()).optional(),
   publishDate: z.string().min(1, "Publish date is required"),
   expiryDate: z.string().optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
-  status: z.enum(["published", "draft", "scheduled"]).default("published"),
+  status: z.enum(["published", "draft", "scheduled", "archived", "expired"]).default("published"),
+  isPinned: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  attachments: z.any().optional(),
 });
 
 export const feeSchema = z.object({

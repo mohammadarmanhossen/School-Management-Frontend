@@ -1,11 +1,14 @@
 "use client";
 
+import { useState, useMemo } from "react";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
+import { SearchInput } from "@/components/shared/search-input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -16,7 +19,15 @@ import { toast } from "sonner";
 
 export default function AssignmentsPage() {
   const router = useRouter();
+  const [search, setSearch] = useState("");
   const { assignments, isLoaded, deleteAssignment } = useAssignmentsStorage();
+
+  const filtered = useMemo(() =>
+    assignments.filter((a) =>
+      a.title.toLowerCase().includes(search.toLowerCase()) ||
+      a.className.toLowerCase().includes(search.toLowerCase()) ||
+      a.subjectName.toLowerCase().includes(search.toLowerCase())
+    ), [assignments, search]);
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this assignment?")) {
@@ -89,7 +100,8 @@ export default function AssignmentsPage() {
             </Link>
           </Button>
         } />
-      <DataTable columns={columns} data={assignments} />
+      <SearchInput value={search} onChange={setSearch} placeholder="Search assignments..." className="sm:max-w-sm" />
+      <DataTable columns={columns} data={filtered} />
     </div>
   );
 }

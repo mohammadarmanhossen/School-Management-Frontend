@@ -8,13 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { mockStudents } from "@/lib/mock-data";
 import { getInitials, formatDate } from "@/lib/utils";
 import { notFound } from "next/navigation";
+import { useStudentsStorage } from "@/hooks/use-students-storage";
 
 export default function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const student = mockStudents.find((s) => s.id === id);
+  const { getStudentById, isLoaded } = useStudentsStorage();
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  const student = getStudentById(id);
   if (!student) notFound();
 
   return (

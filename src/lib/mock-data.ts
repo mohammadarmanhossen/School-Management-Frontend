@@ -154,6 +154,7 @@ export const mockSubjects: Subject[] = [
 export const mockAttendance: AttendanceRecord[] = mockStudents.slice(0, 15).map((s, i) => ({
   id: `att-${i + 1}`,
   studentId: s.id,
+  rollNumber: s.rollNumber,
   studentName: s.fullName,
   classId: s.classId,
   className: s.className,
@@ -201,9 +202,9 @@ export const mockFees: Fee[] = mockStudents.slice(0, 10).map((s, i) => ({
 }));
 
 export const mockNotices: Notice[] = [
-  { id: "notice-1", title: "Annual Sports Day 2025", content: "Annual sports day will be held on June 25, 2025. All students are requested to participate.", author: "Principal", targetRoles: ["student", "teacher", "parent"], publishDate: "2025-06-01", status: "published", priority: "high" },
-  { id: "notice-2", title: "Mid-Term Exam Schedule", content: "Mid-term examinations will begin from June 10, 2025. Please check the timetable.", author: "Exam Controller", targetRoles: ["student", "teacher"], publishDate: "2025-05-28", status: "published", priority: "urgent" },
-  { id: "notice-3", title: "Fee Payment Reminder", content: "Last date for June fee payment is June 30, 2025.", author: "Accounts Office", targetRoles: ["parent"], publishDate: "2025-06-05", status: "published", priority: "medium" },
+  { id: "notice-1", title: "Annual Sports Day 2025", content: "Annual sports day will be held on June 25, 2025. All students are requested to participate.", author: "Principal", targetRoles: ["student", "teacher", "parent"], publishDate: "2025-06-01", status: "published", priority: "high", category: "Event", targetAudience: ["All Users"] },
+  { id: "notice-2", title: "Mid-Term Exam Schedule", content: "Mid-term examinations will begin from June 10, 2025. Please check the timetable.", author: "Exam Controller", targetRoles: ["student", "teacher"], publishDate: "2025-05-28", status: "published", priority: "urgent", category: "Exam", targetAudience: ["All Students", "All Teachers"] },
+  { id: "notice-3", title: "Fee Payment Reminder", content: "Last date for June fee payment is June 30, 2025.", author: "Accounts Office", targetRoles: ["parent"], publishDate: "2025-06-05", status: "published", priority: "medium", category: "Fee", targetAudience: ["All Parents"] },
 ];
 
 export const mockNotifications: Notification[] = [
@@ -224,11 +225,11 @@ export const mockVehicles: Vehicle[] = [
 ];
 
 export const mockTimetable: TimetableEntry[] = [
-  { id: "tt-1", day: "Sunday", startTime: "08:00", endTime: "08:45", subjectName: "Mathematics", teacherName: "Mohammad Karim", className: "Class 10", room: "101" },
-  { id: "tt-2", day: "Sunday", startTime: "08:45", endTime: "09:30", subjectName: "English", teacherName: "Sharmin Akter", className: "Class 10", room: "101" },
-  { id: "tt-3", day: "Sunday", startTime: "09:45", endTime: "10:30", subjectName: "Physics", teacherName: "Abdul Jabbar", className: "Class 10", room: "Lab 1" },
-  { id: "tt-4", day: "Monday", startTime: "08:00", endTime: "08:45", subjectName: "Chemistry", teacherName: "Nusrat Jahan", className: "Class 10", room: "Lab 2" },
-  { id: "tt-5", day: "Monday", startTime: "08:45", endTime: "09:30", subjectName: "Biology", teacherName: "Imran Hossain", className: "Class 10", room: "102" },
+  { id: "tt-1", day: "Sunday", startTime: "08:00", endTime: "08:45", subjectName: "Mathematics", subjectCode: "MATH101", teacherName: "Mohammad Karim", teacherId: "teacher-1", className: "Class 10", sectionName: "A", room: "101", type: "Lecture", color: "bg-blue-500/10 border-blue-500/20 text-blue-100" },
+  { id: "tt-2", day: "Sunday", startTime: "08:45", endTime: "09:30", subjectName: "English", subjectCode: "ENG101", teacherName: "Sharmin Akter", teacherId: "teacher-2", className: "Class 10", sectionName: "A", room: "101", type: "Lecture", color: "bg-emerald-500/10 border-emerald-500/20 text-emerald-100" },
+  { id: "tt-3", day: "Sunday", startTime: "09:45", endTime: "10:30", subjectName: "Physics", subjectCode: "PHY101", teacherName: "Abdul Jabbar", teacherId: "teacher-3", className: "Class 10", sectionName: "A", room: "Lab 1", type: "Lab", color: "bg-purple-500/10 border-purple-500/20 text-purple-100" },
+  { id: "tt-4", day: "Monday", startTime: "08:00", endTime: "08:45", subjectName: "Chemistry", subjectCode: "CHE101", teacherName: "Nusrat Jahan", teacherId: "teacher-4", className: "Class 10", sectionName: "A", room: "Lab 2", type: "Lab", color: "bg-orange-500/10 border-orange-500/20 text-orange-100" },
+  { id: "tt-5", day: "Monday", startTime: "08:45", endTime: "09:30", subjectName: "Biology", subjectCode: "BIO101", teacherName: "Imran Hossain", teacherId: "teacher-5", className: "Class 10", sectionName: "A", room: "102", type: "Lecture", color: "bg-cyan-500/10 border-cyan-500/20 text-cyan-100" },
 ];
 
 export function paginate<T>(items: T[], page = 1, pageSize = 10) {

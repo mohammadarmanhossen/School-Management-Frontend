@@ -1,18 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useTransportStore } from "@/store";
 import type { Vehicle } from "@/types";
 
 export default function TransportPage() {
   const vehicles = useTransportStore((state) => state.vehicles);
   const deleteVehicle = useTransportStore((state) => state.deleteVehicle);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredVehicles = vehicles.filter(v => 
+    v.registrationNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.routeName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const columns: ColumnDef<Vehicle>[] = [
     { accessorKey: "registrationNumber", header: "Registration" },
@@ -62,7 +71,18 @@ export default function TransportPage() {
             </Link>
           </Button>
         } />
-      <DataTable columns={columns} data={vehicles} />
+      <div className="flex justify-start mb-4">
+        <div className="relative w-full md:w-[300px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <Input 
+            placeholder="Search vehicles, driver, or route..." 
+            className="pl-9" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+      <DataTable columns={columns} data={filteredVehicles} />
     </div>
   );
 }

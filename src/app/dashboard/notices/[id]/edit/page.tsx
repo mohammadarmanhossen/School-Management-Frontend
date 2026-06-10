@@ -214,6 +214,22 @@ export default function EditNoticePage({
                 </p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-attachments">
+                Attachments (PDF, Images, Excel, Docs)
+              </Label>
+              <Input
+                id="edit-attachments"
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx,.csv"
+                {...register("attachments")}
+              />
+              <p className="text-xs text-zinc-500">
+                You can attach multiple files (PDF, Word, Excel, or Images).
+              </p>
+            </div>
           </CardContent>
         </Card>
 

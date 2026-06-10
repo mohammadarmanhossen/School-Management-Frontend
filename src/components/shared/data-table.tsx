@@ -5,7 +5,9 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel,
   SortingState,
+  PaginationState,
   useReactTable,
   RowSelectionState,
 } from "@tanstack/react-table";
@@ -14,6 +16,7 @@ import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,6 +35,10 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 5,
+  });
 
   const selectionColumn: ColumnDef<TData, TValue> = {
     id: "select",
@@ -60,7 +67,9 @@ export function DataTable<TData, TValue>({
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     onRowSelectionChange: (updater) => {
       const newSelection = typeof updater === "function" ? updater(rowSelection) : updater;
       setRowSelection(newSelection);
@@ -71,7 +80,7 @@ export function DataTable<TData, TValue>({
         onSelectionChange(selectedRows);
       }
     },
-    state: { sorting, rowSelection },
+    state: { sorting, rowSelection, pagination },
   });
 
   if (isLoading) {
@@ -147,6 +156,45 @@ export function DataTable<TData, TValue>({
             )}
           </tbody>
         </table>
+      </div>
+      <div className="flex items-center justify-between py-4 px-4 border-t border-white/[0.06]">
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount() || 1}
+          </div>
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+            className="h-8 rounded-md border border-white/[0.1] bg-transparent px-2 text-sm text-zinc-300 outline-none focus:border-indigo-500"
+          >
+            {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize} className="bg-zinc-950 text-zinc-300">
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,18 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useBookStore } from "@/store";
 import type { Book } from "@/types";
 
 export default function LibraryPage() {
   const books = useBookStore((state) => state.books);
   const deleteBook = useBookStore((state) => state.deleteBook);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredBooks = books.filter(b => 
+    b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    b.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    b.isbn.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const columns: ColumnDef<Book>[] = [
     { accessorKey: "title", header: "Title" },
@@ -66,7 +75,18 @@ export default function LibraryPage() {
             </Link>
           </Button>
         } />
-      <DataTable columns={columns} data={books} />
+      <div className="flex justify-start mb-4">
+        <div className="relative w-full md:w-[300px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+          <Input 
+            placeholder="Search books, author, or ISBN..." 
+            className="pl-9" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+      <DataTable columns={columns} data={filteredBooks} />
     </div>
   );
 }

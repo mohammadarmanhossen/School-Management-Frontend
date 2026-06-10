@@ -1,176 +1,113 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Calendar, ClipboardCheck, Users } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, BookOpen, UserCheck, FlaskConical, Users, FileSignature, Activity } from "lucide-react";
+import { TeacherWeeklyGrid } from "@/features/teacher-routine/teacher-weekly-grid";
+import { TeacherTodaySchedule } from "@/features/teacher-routine/teacher-today-schedule";
+import { TeacherDutiesList } from "@/features/teacher-routine/teacher-duties-list";
+import { TeacherWorkloadAnalytics } from "@/features/teacher-routine/teacher-workload-analytics";
 
-export default function TeacherDashboardRoutine() {
-  const todayClasses = [
-    {
-      id: 1,
-      className: "Class 10",
-      subject: "Mathematics",
-      time: "09:00 AM",
-      status: "upcoming",
-    },
-    {
-      id: 2,
-      className: "Class 9",
-      subject: "Physics",
-      time: "11:00 AM",
-      status: "completed",
-    },
-    {
-      id: 3,
-      className: "Class 8",
-      subject: "Chemistry",
-      time: "01:00 PM",
-      status: "upcoming",
-    },
-  ];
+// Hardcoded for mock purposes
+const TEACHER_ID = "teacher-1";
 
-  const homework = [
-    { id: 1, title: "Algebra Exercise", class: "Class 10", status: "pending" },
-    { id: 2, title: "Motion Problems", class: "Class 9", status: "checked" },
-  ];
-
+export default function TeacherRoutinePage() {
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <PageHeader
-        title="Teacher Daily Routine"
-        description="Manage your daily teaching activities"
+    <div className="space-y-6 pb-10">
+      <PageHeader 
+        title="My Routine & Work Schedule" 
+        description="Manage your daily classes, lab sessions, meetings, duties, and workload analytics in one place." 
         breadcrumbs={[
           { label: "Teacher Dashboard", href: "/teacher/dashboard" },
-          { label: "Routine" },
+          { label: "Routine & Schedule" }
         ]}
       />
 
-      {/* TOP CARDS */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Users className="mx-auto mb-2 text-blue-500" />
-            <p className="text-2xl font-bold">120</p>
-            <p className="text-sm text-muted-foreground">Total Students</p>
-          </CardContent>
+      {/* Top Stat Cards */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center">
+          <div className="flex items-center text-[10px] sm:text-xs text-zinc-400 mb-2"><CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-blue-400"/> Today's Classes</div>
+          <div className="text-xl sm:text-2xl font-bold">3</div>
         </Card>
-
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Calendar className="mx-auto mb-2 text-green-500" />
-            <p className="text-2xl font-bold">3</p>
-            <p className="text-sm text-muted-foreground">Today Classes</p>
-          </CardContent>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center">
+          <div className="flex items-center text-[10px] sm:text-xs text-zinc-400 mb-2"><Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-emerald-400"/> Weekly Hours</div>
+          <div className="text-xl sm:text-2xl font-bold text-emerald-400">18</div>
         </Card>
-
-        <Card>
-          <CardContent className="p-6 text-center">
-            <ClipboardCheck className="mx-auto mb-2 text-amber-500" />
-            <p className="text-2xl font-bold">5</p>
-            <p className="text-sm text-muted-foreground">Pending Homework</p>
-          </CardContent>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center">
+          <div className="flex items-center text-[10px] sm:text-xs text-zinc-400 mb-2"><UserCheck className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-zinc-400"/> Free Periods</div>
+          <div className="text-xl sm:text-2xl font-bold text-zinc-300">12</div>
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center">
+          <div className="flex items-center text-[10px] sm:text-xs text-zinc-400 mb-2"><FlaskConical className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-cyan-400"/> Lab Sessions</div>
+          <div className="text-xl sm:text-2xl font-bold text-cyan-400">4</div>
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center">
+          <div className="flex items-center text-[10px] sm:text-xs text-zinc-400 mb-2"><Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-purple-400"/> Meetings</div>
+          <div className="text-xl sm:text-2xl font-bold text-purple-400">3</div>
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center">
+          <div className="flex items-center text-[10px] sm:text-xs text-zinc-400 mb-2"><FileSignature className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-amber-400"/> Other Duties</div>
+          <div className="text-xl sm:text-2xl font-bold text-amber-400">5</div>
+        </Card>
+        <Card className="dashboard-card border-white/[0.08] p-4 flex flex-col justify-center bg-blue-500/5 border-blue-500/20">
+          <div className="flex items-center text-[10px] sm:text-xs text-blue-400 mb-2"><Activity className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2"/> Next Up</div>
+          <div className="text-sm sm:text-base font-bold text-blue-400 line-clamp-1" title="Class 10 Physics Lab">Physics Lab</div>
         </Card>
       </div>
 
-      {/* TODAY CLASSES */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Today&apos;s Classes</CardTitle>
-        </CardHeader>
+      <Tabs defaultValue="today" className="w-full">
+        <TabsList className="bg-white/[0.02] border border-white/[0.05] p-1 mb-6 flex-wrap h-auto justify-start">
+          <TabsTrigger value="today" className="data-[state=active]:bg-white/[0.05]"><Clock className="w-4 h-4 mr-2" /> Today's Agenda</TabsTrigger>
+          <TabsTrigger value="weekly" className="data-[state=active]:bg-white/[0.05]"><CalendarIcon className="w-4 h-4 mr-2" /> Weekly Routine</TabsTrigger>
+          <TabsTrigger value="duties" className="data-[state=active]:bg-white/[0.05]"><FileSignature className="w-4 h-4 mr-2" /> Labs, Duties & Meetings</TabsTrigger>
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-white/[0.05]"><Activity className="w-4 h-4 mr-2" /> Workload Analytics</TabsTrigger>
+        </TabsList>
 
-        <CardContent className="space-y-3">
-          {todayClasses.map((c) => (
-            <div
-              key={c.id}
-              className="flex items-center justify-between border p-4 rounded-lg"
-            >
-              <div>
-                <p className="font-semibold">
-                  {c.className} - {c.subject}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Time: {c.time}
-                </p>
-              </div>
-
-              <Badge
-                className={
-                  c.status === "completed"
-                    ? "bg-green-500/10 text-green-500"
-                    : "bg-yellow-500/10 text-yellow-500"
-                }
-              >
-                {c.status}
-              </Badge>
+        <TabsContent value="today" className="space-y-6 animate-in fade-in duration-300">
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <TeacherTodaySchedule teacherId={TEACHER_ID} />
             </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* HOMEWORK */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Homework Routine</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-3">
-          {homework.map((h) => (
-            <div
-              key={h.id}
-              className="flex items-center justify-between border p-4 rounded-lg"
-            >
-              <div>
-                <p className="font-semibold">{h.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {h.class}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Badge
-                  className={
-                    h.status === "checked"
-                      ? "bg-green-500/10 text-green-500"
-                      : "bg-amber-500/10 text-amber-500"
-                  }
-                >
-                  {h.status}
-                </Badge>
-
-                {h.status === "pending" && (
-                  <Button size="sm">Review</Button>
-                )}
-              </div>
+            <div className="space-y-6">
+              <Card className="dashboard-card border-white/[0.08]">
+                <CardHeader>
+                  <CardTitle className="text-lg">Upcoming Administrative Tasks</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="p-3 rounded-lg border border-white/[0.08] bg-white/[0.02] flex justify-between items-center">
+                    <div>
+                      <h5 className="font-medium text-sm text-white">Marks Entry</h5>
+                      <p className="text-xs text-zinc-400">Class 10 Mid-Term</p>
+                    </div>
+                    <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/20">Pending</Badge>
+                  </div>
+                  <div className="p-3 rounded-lg border border-white/[0.08] bg-white/[0.02] flex justify-between items-center">
+                    <div>
+                      <h5 className="font-medium text-sm text-white">Assignment Review</h5>
+                      <p className="text-xs text-zinc-400">Class 9 Physics</p>
+                    </div>
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Completed</Badge>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </div>
+        </TabsContent>
 
-      {/* QUICK ACTIONS */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
+        <TabsContent value="weekly" className="space-y-4 animate-in fade-in duration-300">
+          <TeacherWeeklyGrid teacherId={TEACHER_ID} />
+        </TabsContent>
 
-        <CardContent className="flex gap-3 flex-wrap">
-          <Button>
-            <BookOpen className="mr-2 h-4 w-4" />
-            Create Lesson Plan
-          </Button>
+        <TabsContent value="duties" className="space-y-4 animate-in fade-in duration-300">
+          <TeacherDutiesList />
+        </TabsContent>
 
-          <Button variant="outline">
-            Take Attendance
-          </Button>
-
-          <Button variant="outline">
-            Add Homework
-          </Button>
-        </CardContent>
-      </Card>
+        <TabsContent value="analytics" className="space-y-4 animate-in fade-in duration-300">
+          <TeacherWorkloadAnalytics />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
-

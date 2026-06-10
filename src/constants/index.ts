@@ -18,6 +18,8 @@ export const ATTENDANCE_STATUS = {
   absent: { label: "Absent", color: "bg-red-500", textColor: "text-red-700" },
   late: { label: "Late", color: "bg-yellow-500", textColor: "text-yellow-700" },
   leave: { label: "Leave", color: "bg-blue-500", textColor: "text-blue-700" },
+  half_day: { label: "Half Day", color: "bg-orange-500", textColor: "text-orange-700" },
+  excused: { label: "Excused", color: "bg-purple-500", textColor: "text-purple-700" },
 } as const;
 
 export const EXAM_TYPES = {

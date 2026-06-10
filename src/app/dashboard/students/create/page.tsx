@@ -14,9 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BLOOD_GROUPS, GENDERS } from "@/constants";
 import { mockClasses, mockSections } from "@/lib/mock-data";
 import { toast } from "sonner";
+import { useStudentsStorage } from "@/hooks/use-students-storage";
 
 export default function CreateStudentPage() {
   const router = useRouter();
+  const { addStudent } = useStudentsStorage();
   const {
     register,
     handleSubmit,
@@ -30,10 +32,38 @@ export default function CreateStudentPage() {
 
   const classId = watch("classId");
 
-  const onSubmit = async () => {
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success("Student created successfully");
-    router.push("/dashboard/students");
+  const onSubmit = async (data: StudentFormData) => {
+    try {
+      await new Promise((r) => setTimeout(r, 800));
+      const classObj = mockClasses.find((c) => c.id === data.classId);
+      const sectionObj = mockSections.find((s) => s.id === data.sectionId);
+      
+      addStudent({
+        studentId: data.studentId,
+        rollNumber: data.rollNumber,
+        fullName: data.fullName,
+        gender: data.gender,
+        dateOfBirth: data.dateOfBirth,
+        bloodGroup: data.bloodGroup,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        admissionDate: data.admissionDate,
+        classId: data.classId,
+        className: classObj?.name || "Unknown",
+        sectionId: data.sectionId,
+        sectionName: sectionObj?.name || "Unknown",
+        parentName: data.parentName,
+        parentPhone: data.parentPhone,
+        parentEmail: data.parentEmail,
+        status: data.status,
+      });
+
+      toast.success("Student created successfully");
+      router.push("/dashboard/students");
+    } catch (error) {
+      toast.error("Failed to create student");
+    }
   };
 
   return (
